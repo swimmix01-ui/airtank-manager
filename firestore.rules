@@ -1,0 +1,60 @@
+rules_version = '2';
+// 해양경찰 공기통 관리시스템 — Firestore 보안 규칙
+// ▶ 아래 ALLOWED 목록에 Firebase Authentication에서 만든 계정 이메일을 넣으세요.
+//   (목록에 없는 계정은 로그인해도 데이터에 접근할 수 없습니다 — 임의 가입 차단)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isMember() {
+      return request.auth != null
+        && request.auth.token.email in [
+          'rescue.pohang@airssat.app'      // 구조대 공용 계정 (index.html의 sharedEmail과 같아야 함)
+        ];
+    }
+
+    function validNum(field, lo, hi) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] == null
+        || (request.resource.data[field] is number
+            && request.resource.data[field] >= lo
+            && request.resource.data[field] <= hi);
+    }
+
+    match /tanks/{id} {
+      allow read: if isMember();
+      allow write: if isMember()
+        && (request.method == 'delete'
+            || (request.resource.data.id is string
+                && request.resource.data.id.size() > 0
+                && request.resource.data.id.size() <= 40
+                && validNum('pressure', 0, 400)
+                && validNum('maxP', 0, 400)));
+    }
+
+    match /charges/{id} {
+      allow read: if isMember();
+      allow write: if isMember()
+        && (request.method == 'delete'
+            || (request.resource.data.tankId is string
+                && request.resource.data.pressure is number
+                && validNum('pressure', 1, 400)
+                && validNum('prePressure', 0, 400)));
+    }
+
+    match /inspections/{id} {
+      allow read: if isMember();
+      allow write: if isMember()
+        && (request.method == 'delete'
+            || (request.resource.data.tankId is string && request.resource.data.date is string));
+    }
+
+    match /config/{id} {
+      allow read, write: if isMember();
+    }
+
+    // 그 밖의 모든 경로는 차단
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

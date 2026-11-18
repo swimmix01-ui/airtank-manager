@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a1424">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://cdnjs.cloudflare.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<title>해양경찰 공기통 관리시스템</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" id="favicon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a1424; --bg2:#0d1a2f; --surface:#12213a; --surface2:#182b4a; --surface3:#1f3559;
+  --line:rgba(148,178,220,.16); --line2:rgba(148,178,220,.28);
+  --gold:#d4b25a; --gold2:#f0d78c; --gold-dim:#a88b3d; --gold-bg:rgba(212,178,90,.12);
+  --text:#eef3fb; --sub:#b3c4dc; --dim:#8399b8;
+  --ok:#34d17a; --ok-bg:rgba(52,209,122,.14);
+  --warn:#f5b22e; --warn-bg:rgba(245,178,46,.14);
+  --orange:#ff8a3d; --orange-bg:rgba(255,138,61,.15);
+  --danger:#ff5d5d; --danger-bg:rgba(255,93,93,.14);
+  --purple:#b98bff; --purple-bg:rgba(185,139,255,.15);
+  --info:#5cb8ff; --info-bg:rgba(92,184,255,.14);
+  --radius:14px; --nav-h:64px;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Noto Sans KR',system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  font-size:15px;line-height:1.5;color:var(--text);background:var(--bg);min-height:100vh;
+  background-image:radial-gradient(ellipse at 15% -10%,rgba(40,70,120,.55),transparent 55%),radial-gradient(ellipse at 100% 110%,rgba(20,40,75,.6),transparent 55%);
+  background-attachment:fixed;-webkit-tap-highlight-color:transparent;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.hidden{display:none!important}
+.mono{font-family:var(--mono)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+svg.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+svg.ic.sm{width:18px;height:18px}
+
+/* ── 앱 레이아웃 ── */
+.app{max-width:680px;margin:0 auto;min-height:100vh;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 16px)}
+header.top{
+  position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;
+  padding:10px 14px;background:rgba(10,20,36,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+header.top::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
+.top-logo{height:34px;width:auto;filter:drop-shadow(0 0 6px rgba(212,178,90,.35))}
+.top-title{flex:1;min-width:0}
+.top-title small{display:block;font-size:10px;letter-spacing:2px;color:var(--gold);font-weight:700}
+.top-title strong{display:block;font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sync-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);padding:6px 10px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 6px currentColor;flex-shrink:0}
+.dot.online{background:var(--ok)} .dot.offline{background:var(--danger);animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.3}}
+.icon-btn{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--sub);border:1px solid var(--line);background:var(--surface)}
+.icon-btn:active{transform:scale(.95)}
+
+.offline-banner{margin:10px 14px 0;padding:9px 12px;border-radius:10px;background:var(--danger-bg);border:1px solid rgba(255,93,93,.35);color:#ffb3b3;font-size:13px;display:flex;gap:8px;align-items:center}
+
+nav.bottom{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;justify-content:center;
+  background:rgba(13,26,47,.97);border-top:1px solid var(--line);padding-bottom:var(--safe-b);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+nav.bottom .inner{display:flex;width:100%;max-width:680px}
+.nav-btn{flex:1;height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--dim);font-size:12px;font-weight:700;position:relative}
+.nav-btn.active{color:var(--gold2)}
+.nav-btn.active::before{content:'';position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+.nav-btn .badge-dot{position:absolute;top:10px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:var(--danger);border:2px solid var(--bg2);display:none}
+.nav-btn .badge-dot.show{display:block}
+.nav-btn.scan .ic{width:26px;height:26px}
+
+.page{display:none;padding:14px}
+.page.active{display:block;animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ── 공통 요소 ── */
+.sec-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--gold);letter-spacing:.5px;margin:20px 0 10px}
+.sec-title:first-child{margin-top:4px}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+.sec-title .count{color:var(--sub);font-weight:600}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.card + .card{margin-top:10px}
+.muted{color:var(--sub)} .dim{color:var(--dim)}
+.small{font-size:13px} .tiny{font-size:12px}
+
+.hero{display:flex;align-items:center;gap:14px;padding:16px;border-radius:16px;
+  background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1px solid rgba(212,178,90,.25);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent 0 10px,rgba(212,178,90,.025) 10px 20px)}
+.hero > *{position:relative}
+.hero-date{font-size:12px;color:var(--gold);font-weight:700;letter-spacing:1px}
+.hero-title{font-size:18px;font-weight:900}
+.hero-sub{font-size:13px;color:var(--sub);margin-top:2px}
+.hero-ic{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--gold-bg);color:var(--gold2);border:1px solid rgba(212,178,90,.3)}
+.hero-ic .ic{width:30px;height:30px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 10px;text-align:left;position:relative;overflow:hidden;width:100%}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c,var(--gold))}
+.stat:active{transform:scale(.97)}
+.stat .lbl{font-size:12px;color:var(--sub);font-weight:600}
+.stat .val{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--c,var(--gold2));line-height:1.15;margin-top:2px}
+.stat .sub{font-size:11px;color:var(--dim)}
+
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:7px 13px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid var(--line2);color:var(--sub);background:transparent;white-space:nowrap}
+.chip.active{background:var(--gold-bg);border-color:var(--gold);color:var(--gold2)}
+.chip-label{font-size:12px;color:var(--dim);font-weight:700;margin:2px 0 4px}
+
+.search{position:relative;margin-bottom:10px}
+.search input{width:100%;padding:12px 14px 12px 42px;border-radius:12px;background:var(--bg2);border:1px solid var(--line2);outline:none;font-size:15px}
+.search input:focus{border-color:var(--gold)}
+.search .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--dim)}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;padding:12px 16px;border-radius:12px;font-size:15px;font-weight:800;transition:transform .1s,opacity .2s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;pointer-events:none}
+.btn + .btn{margin-top:8px}
+.btn-gold{background:linear-gradient(135deg,#b08f3e,#d9b85f 45%,#f0d78c 60%,#c9a74f);color:#0a1424;box-shadow:0 4px 16px rgba(212,178,90,.25)}
+.btn-line{border:1px solid var(--line2);color:var(--text);background:var(--surface2)}
+.btn-ghost{color:var(--sub);border:1px solid var(--line)}
+.btn-purple{background:linear-gradient(135deg,#4b2a85,#7a4fd0);color:#fff}
+.btn-orange{background:var(--orange-bg);border:1px solid rgba(255,138,61,.45);color:#ffb27f}
+.btn-ok{background:var(--ok-bg);border:1px solid rgba(52,209,122,.45);color:#7ee8ab}
+.btn-danger{background:var(--danger-bg);border:1px solid rgba(255,93,93,.45);color:#ff9b9b}
+.btn-sm{width:auto;min-height:38px;padding:7px 14px;font-size:13px;border-radius:10px}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.btn-row .btn + .btn{margin-top:0}
+.btn.busy{opacity:.6;pointer-events:none}
+.btn.busy::after{content:'';width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--sub);margin-bottom:5px}
+.field label .req{color:var(--gold)}
+.field .hint{font-size:12px;color:var(--dim);margin-top:4px}
+.input{width:100%;min-height:48px;padding:11px 13px;border-radius:11px;background:var(--bg2);border:1px solid var(--line2);outline:none;font-size:16px}
+.input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,178,90,.15)}
+.input[readonly]{color:var(--gold2);font-weight:700;background:rgba(212,178,90,.06)}
+select.input{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--sub) 50%),linear-gradient(135deg,var(--sub) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:34px}
+select.input option{background:var(--surface2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2 .field{margin-bottom:12px}
+
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;margin:2px 4px 2px 0;border:1px solid transparent;white-space:nowrap}
+.t-ok{background:var(--ok-bg);color:#6fe3a2;border-color:rgba(52,209,122,.25)}
+.t-warn{background:var(--warn-bg);color:#ffcc66;border-color:rgba(245,178,46,.3)}
+.t-orange{background:var(--orange-bg);color:#ffab73;border-color:rgba(255,138,61,.3)}
+.t-danger{background:var(--danger-bg);color:#ff9090;border-color:rgba(255,93,93,.3)}
+.t-purple{background:var(--purple-bg);color:#d2b4ff;border-color:rgba(185,139,255,.3)}
+.t-info{background:var(--info-bg);color:#93d0ff;border-color:rgba(92,184,255,.3)}
+.t-dim{background:rgba(131,153,184,.12);color:var(--sub);border-color:var(--line)}
+
+/* ── 탱크 카드 ── */
+.list{display:flex;flex-direction:column;gap:8px}
+.tank{display:flex;align-items:center;gap:12px;padding:12px 14px 12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);position:relative;overflow:hidden;text-align:left;width:100%}
+.tank::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--lc,var(--gold-dim))}
+.tank:active{transform:scale(.99);background:var(--surface2)}
+.tank-ic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--icbg,var(--gold-bg));color:var(--lc,var(--gold2))}
+.tank-ic .ic{width:26px;height:26px}
+.tank-body{flex:1;min-width:0}
+.tank-id{font-family:var(--mono);font-size:15px;font-weight:700;letter-spacing:.3px;word-break:break-all}
+.tank-meta{font-size:12px;color:var(--sub);margin-top:2px}
+.tank-right{text-align:right;flex-shrink:0}
+.tank-p{font-family:var(--mono);font-size:20px;font-weight:700}
+.tank-p small{font-size:11px;color:var(--dim);font-family:inherit;font-weight:500}
+.pbar{height:4px;border-radius:2px;background:rgba(255,255,255,.07);margin-top:6px;overflow:hidden;width:64px;margin-left:auto}
+.pbar > i{display:block;height:100%;border-radius:2px;background:var(--ok)}
+.pbar.low > i{background:var(--warn)}
+.s-danger{--lc:var(--danger);--icbg:var(--danger-bg)}
+.s-warn{--lc:var(--warn);--icbg:var(--warn-bg)}
+.s-orange{--lc:var(--orange);--icbg:var(--orange-bg)}
+.s-purple{--lc:var(--purple);--icbg:var(--purple-bg)}
+.s-ok{--lc:var(--ok);--icbg:var(--ok-bg)}
+.s-dim{--lc:var(--dim);--icbg:rgba(131,153,184,.12)}
+
+.item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--surface);border:1px solid var(--line);border-radius:12px;width:100%;text-align:left}
+.item + .item{margin-top:6px}
+.item-main{flex:1;min-width:0}
+.item-title{font-family:var(--mono);font-weight:700;font-size:14px;word-break:break-all}
+.item-sub{font-size:12px;color:var(--sub);margin-top:1px;word-break:break-word}
+.item-val{font-family:var(--mono);font-weight:700;color:var(--ok);font-size:16px;white-space:nowrap}
+.item-val small{font-size:11px;color:var(--dim)}
+.item-actions{display:flex;gap:6px}
+.mini{padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid var(--line2);color:var(--sub)}
+.mini.gold{color:var(--gold2);border-color:rgba(212,178,90,.4);background:var(--gold-bg)}
+.mini.red{color:#ff9b9b;border-color:rgba(255,93,93,.4);background:var(--danger-bg)}
+.day-head{font-size:13px;font-weight:800;color:var(--gold);margin:16px 0 6px;display:flex;justify-content:space-between}
+.day-head:first-child{margin-top:4px}
+
+.empty{text-align:center;padding:34px 16px;color:var(--sub)}
+.empty .big{font-size:36px;margin-bottom:6px}
+.empty p{font-size:14px}
+
+.kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--sub);flex-shrink:0}
+.kv .v{font-weight:700;text-align:right;word-break:break-word}
+
+.notice{padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.7;background:var(--purple-bg);border:1px solid rgba(185,139,255,.3);color:var(--sub)}
+.notice b{color:var(--text)}
+.notice.warn{background:var(--warn-bg);border-color:rgba(245,178,46,.35)}
+.notice.danger{background:var(--danger-bg);border-color:rgba(255,93,93,.35);color:#ffc9c9}
+.notice.orange{background:var(--orange-bg);border-color:rgba(255,138,61,.4)}
+
+/* ── 차트 ── */
+.bars{display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:18px}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.bar i{display:block;width:100%;max-width:38px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--gold2),var(--gold-dim));min-height:3px;transition:height .5s}
+.bar.cur i{background:linear-gradient(180deg,#fff2c4,var(--gold))}
+.bar b{font-family:var(--mono);font-size:12px;color:var(--gold2)}
+.bar span{font-size:12px;color:var(--dim)}
+.donut-row{display:flex;align-items:center;gap:18px}
+.legend{flex:1}
+.lg{display:flex;align-items:center;gap:8px;font-size:13px;margin:5px 0}
+.lg i{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.lg span{flex:1;color:var(--sub)}
+.lg b{font-family:var(--mono)}
+.hbar{margin:7px 0}
+.hbar .row{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin-bottom:3px}
+.hbar .row b{color:var(--text);font-family:var(--mono)}
+.hbar .track{height:7px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden}
+.hbar .track i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold2));border-radius:4px}
+
+/* ── 캘린더 ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-nav strong{font-size:16px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-h{text-align:center;font-size:12px;color:var(--dim);font-weight:700;padding:3px 0}
+.cal-h:first-child{color:#ff8f8f}
+.cal-d{aspect-ratio:1/1;max-height:52px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;background:rgba(255,255,255,.035);color:var(--sub);position:relative;width:100%}
+.cal-d.empty{background:transparent;pointer-events:none}
+.cal-d.today{outline:2px solid var(--gold);color:var(--gold2);font-weight:800}
+.cal-d.has{color:var(--text);font-weight:700;background:rgba(255,255,255,.07)}
+.cal-dots{display:flex;gap:3px;margin-top:3px;height:6px}
+.cal-dots i{width:6px;height:6px;border-radius:50%}
+.cal-legend{display:flex;gap:14px;margin-top:10px;font-size:12px;color:var(--sub)}
+.cal-legend span{display:flex;align-items:center;gap:5px}
+.cal-legend i{width:8px;height:8px;border-radius:50%}
+
+/* ── 스캔 ── */
+.scan-box{text-align:center;padding:18px 14px}
+.scan-view{position:relative;width:100%;max-width:360px;aspect-ratio:4/3;margin:0 auto 14px;border-radius:14px;overflow:hidden;background:#000;border:2px solid var(--gold)}
+.scan-view video{width:100%;height:100%;object-fit:cover;display:block}
+.scan-view canvas{display:none}
+.scan-view .line{position:absolute;left:6%;right:6%;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);box-shadow:0 0 10px var(--gold);animation:scanA 2s ease-in-out infinite}
+@keyframes scanA{0%,100%{top:12%}50%{top:86%}}
+.manual-row{display:flex;gap:8px;margin-top:12px}
+.manual-row .input{flex:1;text-transform:uppercase;font-family:var(--mono)}
+.manual-row .btn{width:auto;flex-shrink:0}
+.result{margin:12px 0}
+.result-id{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gold2);word-break:break-all}
+.pre-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid var(--line);margin-bottom:12px;font-size:14px}
+
+/* ── 모달 ── */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(3,8,16,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.overlay.center{align-items:center;padding:18px}
+.sheet{width:100%;max-width:680px;max-height:92vh;overflow-y:auto;overscroll-behavior:contain;background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid rgba(212,178,90,.3);border-bottom:none;border-radius:20px 20px 0 0;padding:10px 16px calc(18px + var(--safe-b));animation:up .25s ease}
+.overlay.center .sheet{border-radius:18px;border-bottom:1px solid rgba(212,178,90,.3);max-width:420px;max-height:84vh;padding-bottom:18px}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 12px}
+.sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sheet-head h2{flex:1;font-size:19px;font-weight:900;word-break:break-all}
+.sheet-head .icon-btn{width:38px;height:38px}
+
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 14px);transform:translate(-50%,20px);z-index:400;max-width:calc(100% - 32px);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:700;background:#143222;border:1px solid rgba(52,209,122,.45);color:#8ff0b8;opacity:0;pointer-events:none;transition:all .25s;box-shadow:0 6px 24px rgba(0,0,0,.45);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:#3a1616;border-color:rgba(255,93,93,.5);color:#ffb0b0}
+
+/* ── 로그인/로딩 ── */
+.login{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#081120,#0e1c33 55%,#16294a)}
+.login-box{width:100%;max-width:360px;text-align:center}
+.login-logo{width:170px;height:auto;filter:drop-shadow(0 0 18px rgba(212,178,90,.45));margin-bottom:10px}
+.login h1{font-size:24px;font-weight:900;background:linear-gradient(135deg,#fff,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.login .org{font-size:13px;letter-spacing:3px;color:var(--gold);font-weight:700;margin:2px 0 24px}
+.login .field{text-align:left}
+.pw-wrap{position:relative}
+.pw-wrap .input{padding-right:52px}
+.pw-wrap button{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:40px;height:40px;color:var(--dim);display:flex;align-items:center;justify-content:center}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--sub);margin:4px 0 16px;cursor:pointer;text-align:left}
+.check input{width:20px;height:20px;accent-color:var(--gold)}
+.login-err{min-height:22px;font-size:13px;color:#ff9b9b;font-weight:700;margin-top:10px;line-height:1.5}
+.login-foot{margin-top:28px;font-size:11px;letter-spacing:1px;color:var(--dim)}
+.loading{position:fixed;inset:0;z-index:900;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:rgba(10,20,36,.94)}
+.spin{width:46px;height:46px;border-radius:50%;border:3px solid rgba(212,178,90,.2);border-top-color:var(--gold);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.set-row .t{font-size:15px;font-weight:700}
+.set-row .s{font-size:12px;color:var(--sub);margin-top:1px}
+.set-row .input{width:84px;min-height:42px;text-align:center;padding:8px}
+.unit{font-size:13px;color:var(--sub);margin-left:6px}
+.foot{text-align:center;margin-top:24px;font-size:12px;color:var(--dim)}
+.foot b{color:var(--gold);letter-spacing:1px}
+
+@media (min-width:560px){
+  .stats{grid-template-columns:repeat(6,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 8v8M11 8v8M14 8v8M17 8v8"/></symbol>
+  <symbol id="i-tank" viewBox="0 0 24 24"><path d="M8 10a4 4 0 0 1 8 0v9.5a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2z"/><path d="M12 6V3M9.5 3h5M10.8 11v6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.6-4.5M4 4v3.5h3.5M4 13a8 8 0 0 0 14.6 4.5M20 20v-3.5h-3.5"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17v.5"/></symbol>
+</svg>
+
+<!-- ══ 로그인 ══ -->
+<div class="login" id="login">
+  <form class="login-box" id="loginForm" autocomplete="on" novalidate>
+    <img class="login-logo" data-logo src="data:," alt="해양경찰 로고">
+    <h1>공기통 관리시스템</h1>
+    <div class="org">KOREA COAST GUARD</div>
+    <div class="field">
+      <label for="loginEmail">계정 (이메일)</label>
+      <input class="input" id="loginEmail" type="email" autocomplete="username" inputmode="email" placeholder="관서 공용 계정">
+    </div>
+    <div class="field">
+      <label for="loginPw">비밀번호</label>
+      <div class="pw-wrap">
+        <input class="input" id="loginPw" type="password" autocomplete="current-password" placeholder="비밀번호">
+        <button type="button" data-action="togglePw" aria-label="비밀번호 표시"><svg class="ic"><use href="#i-eye"/></svg></button>
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" id="keepLogin" checked> 이 기기에서 로그인 유지</label>
+    <button class="btn btn-gold" type="submit" id="loginBtn">로그인</button>
+    <div class="login-err" id="loginErr" role="alert"></div>
+    <div class="login-foot">해양경찰 · 공기통 관리시스템 <span class="appver"></span></div>
+  </form>
+</div>
+
+<div class="loading hidden" id="loading">
+  <div class="spin"></div>
+  <div style="color:var(--gold2);font-weight:700;letter-spacing:1px">데이터 불러오는 중…</div>
+</div>
+
+<div class="app" id="app">
+  <header class="top">
+    <img class="top-logo" data-logo src="data:," alt="">
+    <div class="top-title"><small>KOREA COAST GUARD</small><strong id="topUnit">공기통 관리시스템</strong></div>
+    <button class="sync-pill" data-action="syncNow" aria-label="지금 동기화"><span class="dot" id="connDot"></span><span id="connText">연결중</span></button>
+    <button class="icon-btn" data-action="page" data-page="settings" aria-label="설정"><svg class="ic"><use href="#i-gear"/></svg></button>
+  </header>
+  <div class="offline-banner hidden" id="offlineBanner"><svg class="ic sm"><use href="#i-alert"/></svg><span id="offlineText">오프라인 — 저장된 데이터를 표시 중입니다.</span></div>
+
+  <!-- 현황 -->
+  <section class="page active" id="page-dashboard">
+    <div class="hero">
+      <div class="hero-ic"><svg class="ic"><use href="#i-tank"/></svg></div>
+      <div style="min-width:0">
+        <div class="hero-date" id="heroDate">-</div>
+        <div class="hero-title" id="heroTitle">공기통 현황</div>
+        <div class="hero-sub" id="heroSub">-</div>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="sec-title">🔴 즉시 조치 필요 <span class="count" id="urgentCount"></span></div>
+    <div class="list" id="dashUrgent"></div>
+    <div class="sec-title">📊 통계</div>
+    <div class="card"><div class="small muted" style="font-weight:700">월별 충전 건수 (최근 6개월)</div><div class="bars" id="chartMonthly"></div></div>
+    <div class="card"><div class="small muted" style="font-weight:700;margin-bottom:10px">공기통 상태 분포</div><div class="donut-row" id="chartDonut"></div></div>
+    <div class="card"><div class="small muted" style="font-weight:700;margin-bottom:4px">이번 달 사용 내용별 충전</div><div id="chartUsage"></div></div>
+    <div class="sec-title">최근 충전</div>
+    <div id="dashRecent"></div>
+  </section>
+
+  <!-- 충전(스캔) -->
+  <section class="page" id="page-scan">
+    <div class="card scan-box">
+      <div id="scanIdle">
+        <div style="font-size:40px">📷</div>
+        <p class="muted small" style="margin:6px 0 14px">공기통 바코드/QR을 스캔하거나<br>탱크 ID를 직접 입력하세요</p>
+      </div>
+      <div class="scan-view hidden" id="scanView">
+        <video id="scanVideo" playsinline muted></video>
+        <div id="quaggaBox" style="position:absolute;inset:0"></div>
+        <div class="line"></div>
+      </div>
+      <button class="btn btn-gold" data-action="scanToggle" id="scanBtn"><svg class="ic"><use href="#i-scan"/></svg><span>카메라 스캔 시작</span></button>
+      <div class="manual-row">
+        <input class="input" id="manualId" placeholder="탱크 ID 입력" autocomplete="off" autocapitalize="characters" enterkeyhint="search" aria-label="탱크 ID">
+        <button class="btn btn-line" data-action="manualLookup">조회</button>
+      </div>
+    </div>
+    <div class="card result hidden" id="scanResult"></div>
+    <div class="card hidden" id="chargeForm">
+      <div class="sec-title" style="margin-top:0">충전 정보 입력</div>
+      <div class="field">
+        <label for="cUsage">사용 내용 <span class="req">★</span></label>
+        <select class="input" id="cUsage" data-usage-select="cUsageEtcWrap"></select>
+      </div>
+      <div class="field hidden" id="cUsageEtcWrap"><label for="cUsageEtc">기타 내용</label><input class="input" id="cUsageEtc" maxlength="40" placeholder="사용 내용 직접 입력"></div>
+      <div class="grid2">
+        <div class="field"><label for="cPre">충전 전 압력 (bar)</label><input class="input mono" id="cPre" type="number" inputmode="numeric" min="0" max="400"></div>
+        <div class="field"><label for="cPost">충전 후 압력 (bar) <span class="req">★</span></label><input class="input mono" id="cPost" type="number" inputmode="numeric" min="1" max="400"></div>
+      </div>
+      <div class="field"><label for="cLoc">충전 후 보관위치 <span class="req">★</span></label><select class="input" id="cLoc" data-locations="1"></select></div>
+      <div class="field"><label for="cWhen">충전 일시</label><input class="input" id="cWhen" type="datetime-local"><div class="hint">나중에 입력하는 경우 실제 충전 시각으로 바꾸세요.</div></div>
+      <div class="field"><label for="cCharger">충전 담당자 <span class="req">★</span></label><input class="input" id="cCharger" maxlength="20" autocomplete="name"></div>
+      <div class="field"><label for="cNote">비고</label><input class="input" id="cNote" maxlength="100" placeholder="특이사항 (선택)"></div>
+      <button class="btn btn-gold" data-action="saveCharge" id="saveChargeBtn">💾 충전 기록 저장</button>
+      <button class="btn btn-ghost" data-action="cancelCharge">취소</button>
+    </div>
+  </section>
+
+  <!-- 용기 -->
+  <section class="page" id="page-tanks">
+    <div class="search"><svg class="ic sm"><use href="#i-search"/></svg><input id="tankSearch" placeholder="탱크 ID · 위치 · 용량 검색" autocomplete="off"></div>
+    <div class="chips" id="chipsTankSt"></div>
+    <div class="chips" id="chipsTankLoc"></div>
+    <div class="chips" id="chipsTankPur"></div>
+    <div class="chips" id="chipsTankSort"></div>
+    <div class="tiny dim" id="tankCount" style="margin:2px 2px 8px"></div>
+    <div class="list" id="tankList"></div>
+    <button class="btn btn-gold" style="margin-top:14px" data-action="addTank"><svg class="ic"><use href="#i-plus"/></svg>탱크 등록</button>
+  </section>
+
+  <!-- 일정 -->
+  <section class="page" id="page-schedule">
+    <div class="card" id="calendar"></div>
+    <div class="notice" id="ruleNotice" style="margin-top:10px"></div>
+    <div class="sec-title">점검 · 재충전 대상</div>
+    <div class="chips" id="chipsSchSt"></div>
+    <div class="chips" id="chipsSchLoc"></div>
+    <div class="chips" id="chipsSchPur"></div>
+    <div class="chips" id="chipsSchSort"></div>
+    <div class="tiny dim" id="schCount" style="margin:2px 2px 8px"></div>
+    <div class="list" id="schList"></div>
+  </section>
+
+  <!-- 이력 -->
+  <section class="page" id="page-history">
+    <div class="search"><svg class="ic sm"><use href="#i-search"/></svg><input id="histSearch" placeholder="탱크 ID · 담당자 · 사용내용 검색" autocomplete="off"></div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input class="input" type="month" id="histMonth" aria-label="월 선택" style="flex:1">
+      <button class="btn btn-line btn-sm" data-action="histMonthClear">전체 기간</button>
+    </div>
+    <div class="tiny dim" id="histCount" style="margin:2px 2px 4px"></div>
+    <div id="histList"></div>
+  </section>
+
+  <!-- 설정 -->
+  <section class="page" id="page-settings">
+    <div class="sec-title">관서 정보 <span class="count">(모든 기기 공통)</span></div>
+    <div class="field"><label for="setUnit">관서명</label><input class="input" id="setUnit" data-cfg="unit" maxlength="40" placeholder="예: 포항해양경찰서 구조대"></div>
+
+    <div class="sec-title">관리 기준 <span class="count">(모든 기기 공통)</span></div>
+    <div class="set-row"><div><div class="t">공기 유효기간</div><div class="s">충전 후 재충전 주기</div></div><div><input class="input mono" type="number" data-cfg="airValidDays" min="1" max="365"><span class="unit">일</span></div></div>
+    <div class="set-row"><div><div class="t">만료 임박 경고</div><div class="s">만료 전 남은 일수</div></div><div><input class="input mono" type="number" data-cfg="airWarnDays" min="0" max="60"><span class="unit">일</span></div></div>
+    <div class="set-row"><div><div class="t">압력 부족 기준</div><div class="s">최대압력 대비 이 비율 미만이면 경고</div></div><div><input class="input mono" type="number" data-cfg="warnPct" min="10" max="100"><span class="unit">%</span></div></div>
+    <div class="set-row"><div><div class="t">압력검사 주기 (기본)</div><div class="s">경과연수 기준 이하</div></div><div><input class="input mono" type="number" data-cfg="inspYoung" min="1" max="10"><span class="unit">년</span></div></div>
+    <div class="set-row"><div><div class="t">압력검사 주기 (노후)</div><div class="s">경과연수 기준 초과</div></div><div><input class="input mono" type="number" data-cfg="inspOld" min="1" max="10"><span class="unit">년</span></div></div>
+    <div class="set-row"><div><div class="t">경과연수 기준</div><div class="s">제조(없으면 도입) 후 연수</div></div><div><input class="input mono" type="number" data-cfg="inspAgeYears" min="1" max="50"><span class="unit">년</span></div></div>
+
+    <div class="sec-title">이 기기</div>
+    <div class="field"><label for="setCharger">기본 충전 담당자</label><input class="input" id="setCharger" maxlength="20" placeholder="비워두면 마지막 입력값 사용"></div>
+
+    <div class="sec-title">보고서 · 내보내기</div>
+    <div class="set-row"><div><div class="t">📋 월별 충전 보고서</div><div class="s">결재란 포함 · 인쇄/PDF</div></div><button class="btn btn-gold btn-sm" data-action="openReport">출력</button></div>
+    <div class="set-row"><div><div class="t">📊 엑셀 내보내기</div><div class="s">탱크 · 충전 · 검사 기록 전체</div></div><button class="btn btn-gold btn-sm" data-action="exportExcel" id="excelBtn">다운로드</button></div>
+
+    <div class="sec-title">알림</div>
+    <div class="set-row"><div><div class="t">🔔 만료·검사 알림</div><div class="s">앱을 열거나 동기화될 때 하루 1회</div></div><button class="btn btn-line btn-sm" data-action="pushToggle" id="pushBtn">허용</button></div>
+    <div class="set-row"><div><div class="t">알림 테스트</div><div class="s">지금 테스트 알림 보내기</div></div><button class="btn btn-line btn-sm" data-action="pushTest">테스트</button></div>
+
+    <div class="sec-title">계정 · 동기화</div>
+    <div class="set-row"><div style="min-width:0"><div class="t">로그인 계정</div><div class="s" id="setEmail" style="word-break:break-all">-</div></div><button class="btn btn-line btn-sm" data-action="openPw">비밀번호 변경</button></div>
+    <div class="set-row"><div><div class="t">마지막 동기화</div><div class="s" id="setSync">-</div></div><button class="btn btn-line btn-sm" data-action="syncNow"><svg class="ic sm"><use href="#i-refresh"/></svg>동기화</button></div>
+    <button class="btn btn-danger" data-action="logout" style="margin-top:6px">로그아웃</button>
+
+    <div class="foot"><b>KOREA COAST GUARD</b><br>공기통 관리시스템 <span class="appver"></span> · Firebase <span id="setProject"></span></div>
+  </section>
+</div>
+
+<nav class="bottom" aria-label="주 메뉴"><div class="inner">
+  <button class="nav-btn active" data-action="page" data-page="dashboard"><svg class="ic"><use href="#i-home"/></svg>현황<i class="badge-dot" id="bd-dashboard"></i></button>
+  <button class="nav-btn" data-action="page" data-page="tanks"><svg class="ic"><use href="#i-tank"/></svg>용기<i class="badge-dot" id="bd-tanks"></i></button>
+  <button class="nav-btn scan" data-action="page" data-page="scan"><svg class="ic"><use href="#i-scan"/></svg>충전</button>
+  <button class="nav-btn" data-action="page" data-page="schedule"><svg class="ic"><use href="#i-cal"/></svg>일정<i class="badge-dot" id="bd-schedule"></i></button>
+  <button class="nav-btn" data-action="page" data-page="history"><svg class="ic"><use href="#i-list"/></svg>이력</button>
+</div></nav>
+
+<!-- ══ 탱크 상세 ══ -->
+<div class="overlay" id="mDetail"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <div class="grab"></div>
+  <div class="sheet-head"><h2 class="mono" id="dTitle">-</h2><button class="icon-btn" data-action="close" aria-label="닫기"><svg class="ic"><use href="#i-close"/></svg></button></div>
+  <div id="dBody"></div>
+</div></div>
+
+<!-- ══ 탱크 등록/수정 ══ -->
+<div class="overlay" id="mTank"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="tfTitle">
+  <div class="grab"></div>
+  <div class="sheet-head"><h2 id="tfTitle">탱크 등록</h2><button class="icon-btn" data-action="close" aria-label="닫기"><svg class="ic"><use href="#i-close"/></svg></button></div>
+  <div class="field"><label for="fId">탱크 ID (바코드) <span class="req">★</span></label><input class="input mono" id="fId" maxlength="40" autocapitalize="characters" placeholder="예: SCU-001"><div class="hint hidden" id="fIdHint">ID를 바꾸면 이 탱크의 충전·검사 기록도 함께 변경됩니다.</div></div>
+  <div class="grid2">
+    <div class="field"><label for="fPurpose">용도 <span class="req">★</span></label><select class="input" id="fPurpose"></select></div>
+    <div class="field"><label for="fMaxP">최대 압력</label><select class="input" id="fMaxP"><option value="150">150 bar</option><option value="200">200 bar</option><option value="232">232 bar</option><option value="300">300 bar</option><option value="310">310 bar</option></select></div>
+  </div>
+  <div class="field"><label for="fVol">용기 용량 <span class="req">★</span></label><select class="input" id="fVol"></select></div>
+  <div class="grid2">
+    <div class="field"><label for="fPressure">현재 압력 (bar)</label><input class="input mono" id="fPressure" type="number" inputmode="numeric" min="0" max="400"></div>
+    <div class="field"><label for="fLoc">보관 위치</label><select class="input" id="fLoc" data-locations="1" data-empty="미지정"></select></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label for="fMfg">제조연월 (각인)</label><input class="input" id="fMfg" type="month"></div>
+    <div class="field"><label for="fYear">도입 연도</label><input class="input mono" id="fYear" type="number" inputmode="numeric" min="1970" max="2100" placeholder="예: 2020"></div>
+  </div>
+  <div class="hint" style="margin:-6px 0 12px">검사주기는 제조연월 기준으로 계산하고, 없으면 도입연도로 추정합니다.</div>
+  <div class="grid2">
+    <div class="field"><label for="fCycle">검사 주기</label><select class="input" id="fCycle"><option value="">자동 (설정 기준)</option><option value="1">1년</option><option value="2">2년</option><option value="3">3년</option><option value="5">5년</option></select></div>
+    <div class="field"><label for="fLife">사용수명 (년)</label><input class="input mono" id="fLife" type="number" inputmode="numeric" min="1" max="60" placeholder="없음"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label for="fLastInsp">마지막 압력검사일</label><input class="input" id="fLastInsp" type="date"></div>
+    <div class="field"><label for="fLastCharge">마지막 충전일</label><input class="input" id="fLastCharge" type="date"></div>
+  </div>
+  <button class="btn btn-gold" data-action="saveTank" id="saveTankBtn">💾 저장</button>
+  <button class="btn btn-ghost" data-action="close">취소</button>
+</div></div>
+
+<!-- ══ 압력검사 기록 ══ -->
+<div class="overlay" id="mInsp"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="iTitle">
+  <div class="grab"></div>
+  <div class="sheet-head"><h2 id="iTitle">🔬 압력검사 기록</h2><button class="icon-btn" data-action="close" aria-label="닫기"><svg class="ic"><use href="#i-close"/></svg></button></div>
+  <div class="field"><label for="iTank">탱크 ID</label><input class="input mono" id="iTank" readonly></div>
+  <div class="grid2">
+    <div class="field"><label for="iDate">검사일 <span class="req">★</span></label><input class="input" id="iDate" type="date"></div>
+    <div class="field"><label for="iResult">검사 결과</label><select class="input" id="iResult"><option value="합격">합격</option><option value="조건부합격">조건부합격</option><option value="불합격">불합격</option></select></div>
+  </div>
+  <div class="field"><label for="iOrg">검사 기관</label><input class="input" id="iOrg" maxlength="40" placeholder="예: 한국가스안전공사"></div>
+  <div class="field"><label for="iNote">비고</label><input class="input" id="iNote" maxlength="100"></div>
+  <div class="notice danger hidden" id="iFailNote">불합격으로 기록하면 이 탱크는 <b>사용금지</b>로 표시되고 충전이 차단됩니다.</div>
+  <button class="btn btn-purple" style="margin-top:12px" data-action="saveInsp" id="saveInspBtn">💾 검사 기록 저장</button>
+  <button class="btn btn-ghost" data-action="close">취소</button>
+</div></div>
+
+<!-- ══ 충전기록 수정 ══ -->
+<div class="overlay" id="mCharge"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ceTitle">
+  <div class="grab"></div>
+  <div class="sheet-head"><h2 id="ceTitle">✏️ 충전 기록 수정</h2><button class="icon-btn" data-action="close" aria-label="닫기"><svg class="ic"><use href="#i-close"/></svg></button></div>
+  <div class="field"><label for="ceTank">탱크 ID</label><input class="input mono" id="ceTank" readonly></div>
+  <div class="field"><label for="ceWhen">충전 일시</label><input class="input" id="ceWhen" type="datetime-local"></div>
+  <div class="grid2">
+    <div class="field"><label for="cePre">충전 전 (bar)</label><input class="input mono" id="cePre" type="number" min="0" max="400"></div>
+    <div class="field"><label for="cePost">충전 후 (bar)</label><input class="input mono" id="cePost" type="number" min="1" max="400"></div>
+  </div>
+  <div class="field"><label for="ceUsage">사용 내용</label><select class="input" id="ceUsage" data-usage-select="ceUsageEtcWrap"></select></div>
+  <div class="field hidden" id="ceUsageEtcWrap"><label for="ceUsageEtc">기타 내용</label><input class="input" id="ceUsageEtc" maxlength="40"></div>
+  <div class="field"><label for="ceCharger">충전 담당자</label><input class="input" id="ceCharger" maxlength="20"></div>
+  <div class="field"><label for="ceNote">비고</label><input class="input" id="ceNote" maxlength="100"></div>
+  <button class="btn btn-gold" data-action="saveChargeEdit" id="saveCeBtn">💾 저장</button>
+  <button class="btn btn-ghost" data-action="close">취소</button>
+</div></div>
+
+<!-- ══ 보고서 ══ -->
+<div class="overlay" id="mReport"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rTitle">
+  <div class="grab"></div>
+  <div class="sheet-head"><h2 id="rTitle">📋 월별 충전 보고서</h2><button class="icon-btn" data-action="close" aria-label="닫기"><svg class="ic"><use href="#i-close"/></svg></button></div>
+  <div class="field"><label for="rMonth">대상 연월</label><input class="input" id="rMonth" type="month"></div>
+  <div class="field"><label for="rUnit">관서명</label><input class="input" id="rUnit" maxlength="40"></div>
+  <div class="grid2">
+    <div class="field"><label for="rWriter">담당</label><input class="input" id="rWriter" maxlength="20"></div>
+    <div class="field"><label for="rReviewer">검토 (선택)</label><input class="input" id="rReviewer" maxlength="20"></div>
+  </div>
+  <div class="field"><label for="rApprover">결재</label><input class="input" id="rApprover" maxlength="20"></div>
+  <button class="btn btn-gold" data-action="printReport">🖨️ 보고서 출력 (인쇄/PDF)</button>
+  <button class="btn btn-ghost" data-action="close">닫기</button>
+</div></div>
+
+<!-- ══ 비밀번호 변경 ══ -->
+<div class="overlay center" id="mPw"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pwTitle">
+  <div class="sheet-head"><h2 id="pwTitle">🔒 비밀번호 변경</h2><button class="icon-btn" data-action="close" aria-label="닫기"><svg class="ic"><use href="#i-close"/></svg></button></div>
+  <div class="notice warn small" style="margin-bottom:12px">공용 계정이면 <b>이 계정을 쓰는 모든 기기</b>에서 새 비밀번호로 다시 로그인해야 합니다.</div>
+  <div class="field"><label for="pwCur">현재 비밀번호</label><input class="input" id="pwCur" type="password" autocomplete="current-password"></div>
+  <div class="field"><label for="pwNew">새 비밀번호 (8자 이상)</label><input class="input" id="pwNew" type="password" autocomplete="new-password"></div>
+  <div class="field"><label for="pwNew2">새 비밀번호 확인</label><input class="input" id="pwNew2" type="password" autocomplete="new-password"></div>
+  <button class="btn btn-gold" data-action="savePw" id="savePwBtn">변경</button>
+</div></div>
+
+<!-- ══ 목록 팝업 (공용) ══ -->
+<div class="overlay center" id="mList"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="lTitle">
+  <div class="sheet-head"><h2 id="lTitle">-</h2><button class="icon-btn" data-action="close" aria-label="닫기"><svg class="ic"><use href="#i-close"/></svg></button></div>
+  <div class="small muted" id="lSub" style="margin:-8px 0 12px"></div>
+  <div id="lBody"></div>
+  <button class="btn btn-ghost" style="margin-top:12px" data-action="close">닫기</button>
+</div></div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* ════════════════════════════════════════════════════════════
+   해양경찰 공기통 관리시스템 v5.0
+   - Firebase Authentication(이메일/비밀번호) + Firestore REST
+   - 모든 쓰기는 :commit 배치(원자적) · 변경 필드만 전송(updateMask)
+   ════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  projectId: 'airssat',
+  // Firebase 웹 API 키는 공개용 식별자입니다. 데이터 보호는 로그인 + Firestore 보안 규칙이 담당합니다.
+  apiKey: 'AIzaSyCnbz3fZHUskmsA-fEd0s5t3DUA6uSCs9c',
+  // 구조대 공용 계정 (Firebase 콘솔 → Authentication에서 이 이메일로 계정 생성). 값이 있으면 로그인 화면은 비밀번호만 받습니다.
+  sharedEmail: 'rescue.pohang@airssat.app',
+  version: 'v5.0',
+  tankPollMin: 5,            // 화면이 켜져 있을 때 탱크 상태 갱신 주기(분)
+  fullSyncMin: 30,           // 전체 데이터 재동기화 주기(분)
+  resumeSyncMin: 2           // 앱으로 돌아왔을 때 이 시간 이상 지났으면 전체 동기화(분)
+};
+const LOGO = 'data:image/png;base64,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';
+const CDN = {
+  xlsx: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  quagga: 'https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js'
+};
+const LOCATIONS = ['구조정', '특장차', '스타리아', '건조창고', '고압충전실', '야외창고'];
+const USAGES = ['수중수색훈련', '선저검사', '실제구조대응', '장비점검'];
+const PURPOSES = {
+  diving:  { label: '잠수용', emoji: '🤿', color: '#5cb8ff' },
+  fire:    { label: '소방용', emoji: '🔥', color: '#ff7a7a' },
+  medical: { label: '의료용', emoji: '🏥', color: '#34d17a' }
+};
+const CYLINDERS = {
+  diving: [
+    { label: '106Cuft / 11L / 300Bar', maxP: 300 }, { label: '100Cuft / 13.2L / 200Bar', maxP: 200 },
+    { label: '80Cuft / 11.1L / 200Bar', maxP: 200 }, { label: '63Cuft / 9.0L / 200Bar', maxP: 200 },
+    { label: '53Cuft / 7.6L / 200Bar', maxP: 200 }, { label: '40Cuft / 5.8L / 200Bar', maxP: 200 },
+    { label: '30Cuft / 4.4L / 200Bar', maxP: 200 }, { label: '19Cuft / 2.7L / 200Bar', maxP: 200 },
+    { label: '13Cuft / 1.9L / 200Bar', maxP: 200 }, { label: '6Cuft / 0.9L / 200Bar', maxP: 200 }
+  ],
+  fire: [
+    { label: '4.7L / 310Bar', maxP: 310 }, { label: '6.8L / 300Bar', maxP: 300 }, { label: '9.0L / 310Bar', maxP: 310 }
+  ],
+  medical: [
+    { label: '1L / 150Bar', maxP: 150 }, { label: '2L / 150Bar', maxP: 150 }, { label: '2.3L / 150Bar', maxP: 150 },
+    { label: '2.8L / 150Bar', maxP: 150 }, { label: '4.6L / 150Bar', maxP: 150 }, { label: '5L / 150Bar', maxP: 150 },
+    { label: '10L / 150Bar', maxP: 150 }
+  ]
+};
+const LEGACY_VOL = { '106': '106Cuft / 300Bar', '80': '80Cuft / 200Bar', '30': '30Cuft / 200Bar', '20': '20Cuft / 200Bar', '6.8': '6.8L (보조)', '12': '12L', '15': '15L', '18': '18L' };
+const DEFAULT_CFG = { unit: '', airValidDays: 30, airWarnDays: 7, warnPct: 75, inspYoung: 5, inspOld: 3, inspAgeYears: 10 };
+const CFG_RANGE = { airValidDays: [1, 365], airWarnDays: [0, 60], warnPct: [10, 100], inspYoung: [1, 10], inspOld: [1, 10], inspAgeYears: [1, 50] };
+
+/* ══════════ 유틸 ══════════ */
+const $ = id => document.getElementById(id);
+const ESC_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' };
+const esc = v => (v === null || v === undefined) ? '' : String(v).replace(/[&<>"'`]/g, c => ESC_MAP[c]);
+class Raw { constructor(s) { this.s = s; } toString() { return this.s; } }
+const raw = s => new Raw(s);
+function part(v) {
+  if (v instanceof Raw) return v.s;
+  if (Array.isArray(v)) return v.map(part).join('');
+  if (v === false || v === null || v === undefined) return '';
+  return esc(v);
+}
+/** 자동 이스케이프 템플릿: 모든 ${} 값은 HTML 이스케이프되며 html``/raw()로 만든 값만 그대로 들어갑니다. */
+function html(strings, ...vals) {
+  let o = '';
+  strings.forEach((s, i) => { o += s; if (i < vals.length) o += part(vals[i]); });
+  return raw(o);
+}
+const setHTML = (el, r) => { (typeof el === 'string' ? $(el) : el).innerHTML = part(r); };
+const pad = n => String(n).padStart(2, '0');
+const localDate = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const localDT = (d = new Date()) => `${localDate(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const localMonth = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+function today() { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+function toDay(v) {
+  if (!v) return null;
+  if (v instanceof Date) { const d = new Date(v); d.setHours(0, 0, 0, 0); return d; }
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+  const d = new Date(v); if (isNaN(d)) return null; d.setHours(0, 0, 0, 0); return d;
+}
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const addYears = (d, n) => { const x = new Date(d); x.setFullYear(x.getFullYear() + n); return x; };
+const diffDays = (a, b) => Math.round((b - a) / 864e5);
+const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+function fmtDT(iso) { const d = new Date(iso); return isNaN(d) ? '-' : `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function fmtFull(iso) { const d = new Date(iso); return isNaN(d) ? '-' : `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function fmtKDay(d) { return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${WEEK[d.getDay()]})`; }
+function fmtTime(ts) { if (!ts) return '-'; const d = new Date(ts); return `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+const chargeTs = c => Date.parse(c.date) || 0;
+const chargeDay = c => !c.date ? '' : (/^\d{4}-\d{2}-\d{2}$/.test(c.date) ? c.date : localDate(new Date(c.date)));
+const dLabel = left => left < 0 ? `+${-left}일 초과` : left === 0 ? '오늘' : `D-${left}`;
+const numOrNull = v => (v === '' || v === null || v === undefined || isNaN(+v)) ? null : +v;
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+const Local = {
+  get(k, d) { try { const v = localStorage.getItem('acm_' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('acm_' + k, JSON.stringify(v)); } catch (e) { /* 저장공간 부족 등 */ } },
+  del(k) { try { localStorage.removeItem('acm_' + k); } catch (e) { } }
+};
+const scriptCache = {};
+function loadScript(src) {
+  if (!scriptCache[src]) scriptCache[src] = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src; s.async = true; s.crossOrigin = 'anonymous';
+    s.onload = res; s.onerror = () => { delete scriptCache[src]; rej(new Error('라이브러리를 불러오지 못했습니다. 네트워크를 확인하세요.')); };
+    document.head.appendChild(s);
+  });
+  return scriptCache[src];
+}
+function volDisplay(v) { if (v === null || v === undefined || v === '') return '-'; const s = String(v); return LEGACY_VOL[s] || s; }
+const purposeLabel = p => PURPOSES[p] ? PURPOSES[p].label : (p || '-');
+
+let toastTimer;
+function toast(msg, isErr = false) {
+  const t = $('toast'); t.textContent = msg; t.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.className = 'toast' + (isErr ? ' err' : ''); }, isErr ? 4200 : 2600);
+}
+function setBusy(btn, on) { if (!btn) return; btn.classList.toggle('busy', on); btn.disabled = on; }
+
+/* ══════════ 인증 (Firebase Auth REST) ══════════ */
+const AUTH_MSG = {
+  EMAIL_NOT_FOUND: '비밀번호가 올바르지 않습니다.', INVALID_PASSWORD: '비밀번호가 올바르지 않습니다.',
+  INVALID_LOGIN_CREDENTIALS: '비밀번호가 올바르지 않습니다.', INVALID_EMAIL: '이메일 형식이 올바르지 않습니다.',
+  MISSING_PASSWORD: '비밀번호를 입력하세요.', USER_DISABLED: '사용 중지된 계정입니다. 관리자에게 문의하세요.',
+  TOO_MANY_ATTEMPTS_TRY_LATER: '로그인 시도가 너무 많습니다. 잠시 후 다시 시도하세요.',
+  OPERATION_NOT_ALLOWED: 'Firebase 콘솔에서 이메일/비밀번호 로그인이 꺼져 있습니다. (설정 가이드 1단계)',
+  PASSWORD_LOGIN_DISABLED: 'Firebase 콘솔에서 이메일/비밀번호 로그인이 꺼져 있습니다. (설정 가이드 1단계)',
+  CONFIGURATION_NOT_FOUND: 'Firebase Authentication이 설정되지 않았습니다. (설정 가이드 1단계)',
+  WEAK_PASSWORD: '비밀번호가 너무 약합니다. (6자 이상)', CREDENTIAL_TOO_OLD_LOGIN_AGAIN: '보안을 위해 다시 로그인한 뒤 시도하세요.',
+  TOKEN_EXPIRED: '로그인이 만료되었습니다. 다시 로그인하세요.', INVALID_REFRESH_TOKEN: '로그인이 만료되었습니다. 다시 로그인하세요.',
+  USER_NOT_FOUND: '계정을 찾을 수 없습니다. 다시 로그인하세요.', INVALID_ID_TOKEN: '로그인이 만료되었습니다. 다시 로그인하세요.'
+};
+const FATAL_AUTH = ['TOKEN_EXPIRED', 'INVALID_REFRESH_TOKEN', 'USER_DISABLED', 'USER_NOT_FOUND', 'INVALID_ID_TOKEN'];
+function authError(d) {
+  const code = ((d && d.error && (d.error.message || d.error.status)) || 'UNKNOWN').split(/[ :]/)[0].toUpperCase();
+  const e = new Error(AUTH_MSG[code] || ('인증 오류: ' + code)); e.code = code; e.auth = FATAL_AUTH.includes(code); return e;
+}
+function netError(e) { const x = new Error('네트워크에 연결할 수 없습니다.'); x.network = true; x.cause = e; return x; }
+async function postJSON(url, body, form) {
+  let r;
+  try {
+    r = await fetch(url, { method: 'POST', headers: { 'Content-Type': form ? 'application/x-www-form-urlencoded' : 'application/json' }, body: form ? body : JSON.stringify(body) });
+  } catch (e) { throw netError(e); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw authError(d);
+  return d;
+}
+const Auth = {
+  data: null, refreshing: null, KEY: 'acm_auth',
+  idt: m => `https://identitytoolkit.googleapis.com/v1/accounts:${m}?key=${CONFIG.apiKey}`,
+  load() {
+    try { const s = localStorage.getItem(this.KEY) || sessionStorage.getItem(this.KEY); this.data = s ? JSON.parse(s) : null; } catch (e) { this.data = null; }
+    return !!(this.data && this.data.refreshToken);
+  },
+  persist() {
+    try {
+      localStorage.removeItem(this.KEY); sessionStorage.removeItem(this.KEY);
+      if (this.data) (this.data.keep ? localStorage : sessionStorage).setItem(this.KEY, JSON.stringify(this.data));
+    } catch (e) { }
+  },
+  setTokens(d, keep, email) {
+    this.data = {
+      email: d.email || email || (this.data && this.data.email) || '', uid: d.localId || d.user_id || (this.data && this.data.uid) || '',
+      idToken: d.idToken || d.id_token, refreshToken: d.refreshToken || d.refresh_token,
+      exp: Date.now() + (+(d.expiresIn || d.expires_in || 3600)) * 1000, keep: keep !== undefined ? keep : !!(this.data && this.data.keep)
+    };
+    this.persist();
+  },
+  async signIn(email, password, keep) {
+    const d = await postJSON(this.idt('signInWithPassword'), { email, password, returnSecureToken: true });
+    this.setTokens(d, keep, email);
+  },
+  async refresh() {
+    if (!this.refreshing) {
+      this.refreshing = (async () => {
+        const d = await postJSON(`https://securetoken.googleapis.com/v1/token?key=${CONFIG.apiKey}`,
+          'grant_type=refresh_token&refresh_token=' + encodeURIComponent(this.data.refreshToken), true);
+        this.setTokens(d);
+      })().finally(() => { this.refreshing = null; });
+    }
+    return this.refreshing;
+  },
+  async token(force) {
+    if (!this.data) { const e = new Error('로그인이 필요합니다.'); e.auth = true; throw e; }
+    if (force || !this.data.idToken || Date.now() > this.data.exp - 120000) await this.refresh();
+    return this.data.idToken;
+  },
+  async changePassword(cur, next) {
+    await this.signIn(this.data.email, cur, this.data.keep);             // 재인증
+    const d = await postJSON(this.idt('update'), { idToken: this.data.idToken, password: next, returnSecureToken: true });
+    this.setTokens(d);
+  },
+  logout() { this.data = null; this.persist(); }
+};
+
+/* ══════════ Firestore REST ══════════ */
+const DB = {
+  root: `projects/${CONFIG.projectId}/databases/(default)/documents`,
+  base: `https://firestore.googleapis.com/v1/projects/${CONFIG.projectId}/databases/(default)/documents`,
+  async req(url, opt = {}, retry = true) {
+    const tok = await Auth.token();
+    let r;
+    try {
+      r = await fetch(url, { ...opt, headers: { ...(opt.headers || {}), Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' } });
+    } catch (e) { throw netError(e); }
+    if (r.status === 401 && retry) { await Auth.token(true); return this.req(url, opt, false); }
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw dbError(r.status, d);
+    return d;
+  },
+  async list(col) {
+    const out = []; let token = '';
+    do {
+      const d = await this.req(`${this.base}/${col}?pageSize=300${token ? '&pageToken=' + encodeURIComponent(token) : ''}`);
+      (d.documents || []).forEach(doc => out.push({ ...decFields(doc.fields), _id: doc.name.split('/').pop() }));
+      token = d.nextPageToken || '';
+    } while (token);
+    return out;
+  },
+  async get(col, id) {
+    try { const d = await this.req(`${this.base}/${col}/${id}`); return { ...decFields(d.fields), _id: id }; }
+    catch (e) { if (e.status === 404) return null; throw e; }
+  },
+  async commit(writes) {
+    for (let i = 0; i < writes.length; i += 450) {
+      await this.req(`${this.base}:commit`, { method: 'POST', body: JSON.stringify({ writes: writes.slice(i, i + 450) }) });
+    }
+  },
+  name(col, id) { return `${this.root}/${col}/${id}`; },
+  create(col, id, data) { return { update: { name: this.name(col, id), fields: encFields(data) }, currentDocument: { exists: false } }; },
+  update(col, id, data, mustExist = true) {
+    const w = { update: { name: this.name(col, id), fields: encFields(data) }, updateMask: { fieldPaths: Object.keys(data).filter(k => k !== '_id') } };
+    if (mustExist) w.currentDocument = { exists: true };
+    return w;
+  },
+  del(col, id) { return { delete: this.name(col, id) }; },
+  newId() {
+    const a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', b = new Uint8Array(20);
+    crypto.getRandomValues(b); return Array.from(b, x => a[x % 62]).join('');
+  }
+};
+function dbError(status, d) {
+  const st = (d && d.error && d.error.status) || '';
+  let msg = (d && d.error && d.error.message) || ('HTTP ' + status);
+  if (status === 403 || st === 'PERMISSION_DENIED') msg = '권한이 없습니다. 계정 권한 또는 Firestore 보안 규칙을 확인하세요.';
+  else if (status === 404 || st === 'NOT_FOUND') msg = '대상 데이터가 이미 삭제되었습니다. 동기화 후 다시 시도하세요.';
+  else if (status === 409 || st === 'ALREADY_EXISTS' || st === 'FAILED_PRECONDITION') msg = '다른 기기에서 먼저 변경되었습니다. 동기화 후 다시 시도하세요.';
+  else if (status === 429 || st === 'RESOURCE_EXHAUSTED') msg = 'Firebase 사용량 한도를 초과했습니다. 잠시 후 다시 시도하세요.';
+  else if (status >= 500) msg = 'Firebase 서버 오류입니다. 잠시 후 다시 시도하세요.';
+  const e = new Error(msg); e.status = status; e.fsStatus = st; return e;
+}
+function encVal(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (typeof v === 'boolean') return { booleanValue: v };
+  if (typeof v === 'number') return !isFinite(v) ? { nullValue: null } : Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(encVal) } };
+  if (typeof v === 'object') return { mapValue: { fields: encFields(v) } };
+  return { stringValue: String(v) };
+}
+function encFields(o) { const f = {}; Object.entries(o).forEach(([k, v]) => { if (k !== '_id') f[k] = encVal(v); }); return f; }
+function decVal(v) {
+  if (!v) return null;
+  if ('stringValue' in v) return v.stringValue;
+  if ('integerValue' in v) return Number(v.integerValue);
+  if ('doubleValue' in v) return Number(v.doubleValue);
+  if ('booleanValue' in v) return v.booleanValue;
+  if ('timestampValue' in v) return v.timestampValue;
+  if ('mapValue' in v) return decFields(v.mapValue.fields);
+  if ('arrayValue' in v) return (v.arrayValue.values || []).map(decVal);
+  return null;
+}
+function decFields(f) { const o = {}; if (f) Object.entries(f).forEach(([k, v]) => { o[k] = decVal(v); }); return o; }
+
+/* ══════════ 상태 ══════════ */
+const S = { tanks: [], charges: [], insps: [], cfg: { ...DEFAULT_CFG }, lastSync: 0, fullSyncAt: 0, conn: 'connecting', loaded: false, syncing: false, page: 'dashboard' };
+const F = {
+  tanks: { st: 'all', loc: 'all', pur: 'all', sort: 'status', q: '' },
+  sch: { st: 'all', loc: 'all', pur: 'all', sort: 'insp' },
+  hist: { q: '', month: '', limit: 150 }
+};
+let cal = { y: new Date().getFullYear(), m: new Date().getMonth() };
+const cfg = () => S.cfg;
+const findTank = key => S.tanks.find(t => t._id === key);
+function findTankById(id) {
+  if (!id) return null;
+  const up = String(id).trim().toUpperCase();
+  return S.tanks.find(t => t.id === id) || S.tanks.find(t => String(t.id || '').toUpperCase() === up) || null;
+}
+function sortData() {
+  S.charges.sort((a, b) => chargeTs(b) - chargeTs(a));
+  S.insps.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+}
+function saveCache() {
+  Local.set('cache', { uid: Auth.data && Auth.data.uid, tanks: S.tanks, charges: S.charges, insps: S.insps, cfg: S.cfg, lastSync: S.lastSync });
+}
+function loadCache() {
+  const c = Local.get('cache', null);
+  if (!c || !Auth.data || c.uid !== Auth.data.uid) return false;
+  S.tanks = c.tanks || []; S.charges = c.charges || []; S.insps = c.insps || []; S.cfg = { ...DEFAULT_CFG, ...(c.cfg || {}) }; S.lastSync = c.lastSync || 0;
+  sortData(); return true;
+}
+
+/* ══════════ 상태 계산 ══════════ */
+const maxP = t => +t.maxP || 200;
+const pressure = t => +t.pressure || 0;
+const pLow = t => pressure(t) < maxP(t) * (cfg().warnPct / 100);
+function air(t) {
+  if (!t.lastChargeDate) return { st: 'none', left: null, exp: null };
+  const base = toDay(t.lastChargeDate); if (!base) return { st: 'none', left: null, exp: null };
+  const exp = addDays(base, cfg().airValidDays), left = diffDays(today(), exp);
+  return { st: left < 0 ? 'expired' : left <= cfg().airWarnDays ? 'soon' : 'ok', left, exp };
+}
+function mfgDay(t) {
+  if (t.mfgDate && /^\d{4}-\d{2}/.test(t.mfgDate)) return new Date(+t.mfgDate.slice(0, 4), +t.mfgDate.slice(5, 7) - 1, 1);
+  if (t.introduceYear && +t.introduceYear > 1900) return new Date(+t.introduceYear, 0, 1);
+  return null;
+}
+/**
+ * 압력검사 다음 기한
+ * - 기준일: 마지막 검사일(없으면 제조연월/도입연도 → '추정')
+ * - 주기: 탱크별 지정값 우선, 없으면 경과연수 기준(설정)으로 기본/노후 주기
+ * - 기본 주기 중 경과연수 기준을 넘기면 그 시점부터 노후 주기 적용(더 이른 날짜)
+ */
+function insp(t) {
+  const c = cfg(), mfg = mfgDay(t);
+  let base = t.lastInspDate ? toDay(t.lastInspDate) : null, estimated = false;
+  if (!base) { if (!mfg) return { st: 'unknown', left: null }; base = mfg; estimated = true; }
+  let cycle = +t.inspCycle || 0, next, cycleEst = false, switched = false;
+  if (cycle) next = addYears(base, cycle);
+  else if (mfg) {
+    const ageAtBase = (base - mfg) / (365.25 * 864e5);
+    if (ageAtBase > c.inspAgeYears) { cycle = c.inspOld; next = addYears(base, cycle); }
+    else {
+      const nYoung = addYears(base, c.inspYoung), oldAt = addYears(mfg, c.inspAgeYears);
+      if (oldAt < nYoung) { const nOld = addYears(base, c.inspOld); next = nOld > oldAt ? nOld : oldAt; cycle = c.inspOld; switched = true; }
+      else { next = nYoung; cycle = c.inspYoung; }
+    }
+  } else { cycle = c.inspYoung; next = addYears(base, cycle); cycleEst = true; }
+  const left = diffDays(today(), next);
+  return { st: left < 0 ? 'due' : left <= 7 ? 'week' : left <= 30 ? 'soon' : 'ok', left, next, cycle, estimated, cycleEst, switched };
+}
+function life(t) {
+  const mfg = mfgDay(t); if (!t.lifeYears || !mfg) return null;
+  const end = addYears(mfg, +t.lifeYears), left = diffDays(today(), end);
+  return { st: left < 0 ? 'expired' : left <= 180 ? 'soon' : 'ok', left, end };
+}
+const isBlocked = t => !!t.inspFailed || (life(t) || {}).st === 'expired';
+function primary(t) {
+  if (isBlocked(t)) return 'failed';
+  if (t.sendingInsp) return 'sending';
+  const a = air(t), i = insp(t);
+  if (a.st === 'expired' || a.st === 'none') return 'airExp';
+  if (i.st === 'due') return 'inspDue';
+  if (a.st === 'soon') return 'airSoon';
+  if (pLow(t)) return 'pLow';
+  if (i.st === 'week' || i.st === 'soon') return 'inspSoon';
+  return 'ok';
+}
+const RANK = { failed: 0, airExp: 1, inspDue: 2, airSoon: 3, pLow: 4, inspSoon: 5, sending: 6, ok: 7 };
+const PRIMARY_UI = {
+  failed: { cls: 's-danger', label: '사용금지' }, airExp: { cls: 's-danger', label: '공기만료' }, inspDue: { cls: 's-purple', label: '검사초과' },
+  sending: { cls: 's-orange', label: '검사발송' }, airSoon: { cls: 's-warn', label: '만료임박' }, pLow: { cls: 's-warn', label: '압력부족' },
+  inspSoon: { cls: 's-ok', label: '검사예정' }, ok: { cls: 's-ok', label: '정상' }
+};
+/* 대시보드 숫자·팝업·필터가 모두 같은 기준을 쓰도록 하나로 정의 */
+const CAT = {
+  all: { label: '전체 탱크', sub: '등록', color: 'var(--gold)', fn: () => true },
+  airOk: { label: '공기 정상', sub: '유효기간 내', color: 'var(--ok)', fn: t => !t.sendingInsp && air(t).st === 'ok' },
+  airSoon: { label: '만료 임박', sub: '', color: 'var(--warn)', fn: t => !t.sendingInsp && air(t).st === 'soon' },
+  airExp: { label: '공기 만료', sub: '재충전 필요', color: 'var(--danger)', fn: t => !t.sendingInsp && ['expired', 'none'].includes(air(t).st) },
+  pLow: { label: '압력 부족', sub: '', color: 'var(--orange)', fn: t => !t.sendingInsp && pLow(t) },
+  insp: { label: '압력검사', sub: '30일 이내·초과', color: 'var(--purple)', fn: t => !t.sendingInsp && ['due', 'week', 'soon'].includes(insp(t).st) },
+  blocked: { label: '사용금지·발송', sub: '', color: 'var(--orange)', fn: t => isBlocked(t) || !!t.sendingInsp }
+};
+const isUrgent = t => isBlocked(t) || (!t.sendingInsp && (['expired', 'none'].includes(air(t).st) || pLow(t) || ['due', 'week'].includes(insp(t).st)));
+
+function tankTags(t) {
+  const out = [], a = air(t), i = insp(t), l = life(t);
+  if (t.inspFailed) out.push(html`<span class="tag t-danger">⛔ 검사 불합격·사용금지</span>`);
+  if (l && l.st === 'expired') out.push(html`<span class="tag t-danger">⛔ 사용수명 경과</span>`);
+  else if (l && l.st === 'soon') out.push(html`<span class="tag t-warn">수명 ${dLabel(l.left)}</span>`);
+  if (t.sendingInsp) out.push(html`<span class="tag t-orange">📦 검사 발송중</span>`);
+  else {
+    if (a.st === 'none') out.push(html`<span class="tag t-danger">충전기록 없음</span>`);
+    else if (a.st === 'expired') out.push(html`<span class="tag t-danger">공기만료 ${dLabel(a.left)}</span>`);
+    else if (a.st === 'soon') out.push(html`<span class="tag t-warn">${a.left === 0 ? '공기 오늘 만료' : '만료 ' + dLabel(a.left)}</span>`);
+    else out.push(html`<span class="tag t-ok">공기 ${dLabel(a.left)}</span>`);
+    if (pLow(t)) out.push(html`<span class="tag t-orange">압력부족</span>`);
+  }
+  const est = i.estimated ? '(추정)' : '';
+  if (i.st === 'due') out.push(html`<span class="tag t-purple">검사 ${dLabel(i.left)}${est}</span>`);
+  else if (i.st === 'week') out.push(html`<span class="tag t-orange">검사 ${dLabel(i.left)}${est}</span>`);
+  else if (i.st === 'soon') out.push(html`<span class="tag t-purple">검사 ${dLabel(i.left)}${est}</span>`);
+  return out;
+}
+function tankCard(t, extra) {
+  const p = primary(t), ui = PRIMARY_UI[p], pct = Math.max(0, Math.min(100, Math.round(pressure(t) / maxP(t) * 100)));
+  return html`<button class="tank ${ui.cls}" data-action="tank" data-key="${t._id}">
+    <div class="tank-ic"><svg class="ic"><use href="#i-tank"/></svg></div>
+    <div class="tank-body">
+      <div class="tank-id">${t.id || '(ID 없음)'}</div>
+      <div>${tankTags(t)}</div>
+      <div class="tank-meta">${volDisplay(t.vol)} · ${t.location || '위치 미지정'}${extra ? raw(' · ' + part(extra)) : ''}</div>
+    </div>
+    <div class="tank-right">
+      <div class="tank-p" style="color:${pLow(t) ? 'var(--warn)' : 'var(--text)'}">${pressure(t)}<small> bar</small></div>
+      <div class="pbar ${pLow(t) ? 'low' : ''}"><i style="width:${pct}%"></i></div>
+    </div>
+  </button>`;
+}
+const empty = (emoji, msg) => html`<div class="empty"><div class="big">${emoji}</div><p>${msg}</p></div>`;
+
+/* ══════════ 연결 상태 ══════════ */
+function setConn(state) {
+  S.conn = state;
+  const dot = $('connDot'), txt = $('connText');
+  dot.className = 'dot' + (state === 'online' ? ' online' : state === 'offline' ? ' offline' : '');
+  txt.textContent = state === 'online' ? (S.lastSync ? fmtTime(S.lastSync).split(' ')[1] : '동기화') : state === 'offline' ? '오프라인' : '연결중';
+  $('offlineBanner').classList.toggle('hidden', state !== 'offline');
+  $('offlineText').textContent = S.lastSync ? `오프라인 — ${fmtTime(S.lastSync)} 기준 저장된 데이터입니다. 저장은 연결 후 가능합니다.` : '오프라인 — 연결 후 다시 시도하세요.';
+  $('setSync').textContent = S.lastSync ? fmtFull(S.lastSync) : '-';
+}
+
+/* ══════════ 동기화 ══════════ */
+let retryDelay = 5000, retryTimer = null;
+async function syncAll({ quiet = false } = {}) {
+  if (S.syncing) return; S.syncing = true;
+  if (S.conn !== 'online') setConn('connecting');
+  try {
+    const [tanks, charges, insps, conf] = await Promise.all([DB.list('tanks'), DB.list('charges'), DB.list('inspections'), DB.get('config', 'settings')]);
+    S.tanks = tanks; S.charges = charges; S.insps = insps;
+    S.cfg = { ...DEFAULT_CFG, ...(conf || {}) }; delete S.cfg._id;
+    sortData(); S.lastSync = S.fullSyncAt = Date.now(); S.loaded = true; retryDelay = 5000;
+    saveCache(); setConn('online'); renderAll(); afterSync();
+    if (!quiet) toast('동기화 완료');
+  } catch (e) { syncFailed(e, quiet); }
+  finally { S.syncing = false; $('loading').classList.add('hidden'); }
+}
+async function syncTanks() {
+  if (S.syncing) return; S.syncing = true;
+  try { S.tanks = await DB.list('tanks'); S.lastSync = Date.now(); saveCache(); setConn('online'); renderAll(); afterSync(); }
+  catch (e) { syncFailed(e, true); }
+  finally { S.syncing = false; }
+}
+function syncFailed(e, quiet) {
+  if (e.auth) { forceLogout(e.message); return; }
+  if (e.status === 403 && !S.loaded) { forceLogout('이 계정에는 데이터 접근 권한이 없습니다. (Firestore 보안 규칙의 허용 계정 확인)'); return; }
+  setConn('offline');
+  if (!quiet || !S.loaded) toast('동기화 실패: ' + e.message, true);
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(() => { if (document.visibilityState === 'visible') syncAll({ quiet: true }); }, retryDelay);
+  retryDelay = Math.min(retryDelay * 2, 60000);
+}
+function startTimers() {
+  setInterval(() => {
+    if (document.visibilityState !== 'visible' || !Auth.data || S.syncing || !navigator.onLine) return;
+    const now = Date.now();
+    if (now - S.fullSyncAt > CONFIG.fullSyncMin * 60000) syncAll({ quiet: true });
+    else if (now - S.lastSync > CONFIG.tankPollMin * 60000) syncTanks();
+    if (localDate() !== renderDay) renderAll(); // 자정이 지나면 D-day 재계산
+  }, 30000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && Auth.data && Date.now() - S.fullSyncAt > CONFIG.resumeSyncMin * 60000) syncAll({ quiet: true });
+    if (document.visibilityState === 'hidden') Scan.stop();
+  });
+  window.addEventListener('online', () => { if (Auth.data) syncAll({ quiet: true }); });
+  window.addEventListener('offline', () => setConn('offline'));
+}
+/** 모든 쓰기: 원자적 커밋 → 성공 시에만 로컬 반영 */
+async function commit(writes, apply) {
+  if (!navigator.onLine) throw new Error('오프라인 상태에서는 저장할 수 없습니다.');
+  await DB.commit(writes);
+  apply(); sortData(); saveCache(); renderAll();
+}
+async function runAction(btn, fn) {
+  setBusy(btn, true);
+  try { await fn(); }
+  catch (e) {
+    if (e.auth) forceLogout(e.message);
+    else { toast(e.message || '처리 중 오류가 발생했습니다.', true); if (e.network) setConn('offline'); }
+  } finally { setBusy(btn, false); }
+}
+const stamp = () => ({ updatedAt: new Date().toISOString(), updatedBy: (Auth.data && Auth.data.email) || '' });
+
+/* ══════════ 화면 전환 / 모달 ══════════ */
+function showPage(name) {
+  if (S.page === 'scan' && name !== 'scan') Scan.stop();
+  S.page = name;
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  renderPage(name); window.scrollTo(0, 0);
+}
+const modalStack = []; let ignorePop = 0;
+function openModal(id) {
+  const el = $(id); if (el.classList.contains('show')) return;
+  el.classList.add('show'); modalStack.push(id); history.pushState({ modal: id }, '');
+  document.body.style.overflow = 'hidden';
+  const sh = el.querySelector('.sheet'); if (sh) sh.scrollTop = 0;
+}
+function hideModalEl(id) { $(id).classList.remove('show'); if (!modalStack.length) document.body.style.overflow = ''; }
+function closeModal(id) {
+  const i = modalStack.lastIndexOf(id);
+  if (i < 0) { hideModalEl(id); return; }
+  modalStack.splice(i, 1); hideModalEl(id); ignorePop++; history.back();
+}
+/** 히스토리 항목을 재사용해 모달 전환 (안드로이드 뒤로가기 정상 동작) */
+function swapModal(from, to) {
+  if (modalStack.includes(to)) { closeModal(from); return; }
+  const i = modalStack.lastIndexOf(from);
+  if (i < 0) { openModal(to); return; }
+  modalStack[i] = to; $(from).classList.remove('show'); $(to).classList.add('show');
+  const sh = $(to).querySelector('.sheet'); if (sh) sh.scrollTop = 0;
+}
+const topModal = () => modalStack[modalStack.length - 1];
+window.addEventListener('popstate', () => {
+  if (ignorePop > 0) { ignorePop--; return; }
+  const id = modalStack.pop(); if (id) hideModalEl(id);
+});
+
+/* ══════════ 렌더링 ══════════ */
+let renderDay = localDate();
+function renderAll() {
+  renderDay = localDate();
+  const unit = cfg().unit || '공기통 관리시스템';
+  $('topUnit').textContent = unit;
+  const nUrg = S.tanks.filter(isUrgent).length, nInsp = S.tanks.filter(CAT.insp.fn).length;
+  $('bd-dashboard').classList.toggle('show', nUrg > 0);
+  $('bd-tanks').classList.toggle('show', nUrg > 0);
+  $('bd-schedule').classList.toggle('show', nInsp > 0);
+  renderPage(S.page);
+  if (modalStack.includes('mDetail') && detailKey) { if (findTank(detailKey)) renderDetail(); else closeModal('mDetail'); }
+}
+function renderPage(name) {
+  ({ dashboard: renderDashboard, tanks: renderTanks, schedule: renderSchedule, history: renderHistory, settings: renderSettings, scan: () => { } })[name]();
+}
+
+function renderDashboard() {
+  const T = S.tanks, now = new Date();
+  $('heroDate').textContent = fmtKDay(now);
+  $('heroTitle').textContent = cfg().unit || '공기통 현황';
+  const urgent = T.filter(isUrgent).sort((a, b) => RANK[primary(a)] - RANK[primary(b)] || String(a.id).localeCompare(String(b.id)));
+  $('heroSub').textContent = `전체 ${T.length}개 · 조치 필요 ${urgent.length}개` + (S.lastSync ? ` · ${fmtTime(S.lastSync)} 동기화` : '');
+  CAT.airSoon.sub = `${cfg().airWarnDays}일 이내`; CAT.pLow.sub = `${cfg().warnPct}% 미만`;
+  setHTML('stats', ['all', 'airOk', 'airSoon', 'airExp', 'pLow', 'insp'].map(k => {
+    const c = CAT[k];
+    return html`<button class="stat" style="--c:${raw(c.color)}" data-action="catList" data-cat="${k}"><div class="lbl">${c.label}</div><div class="val">${T.filter(c.fn).length}</div><div class="sub">${c.sub}</div></button>`;
+  }));
+  $('urgentCount').textContent = urgent.length ? `${urgent.length}개` : '';
+  setHTML('dashUrgent', urgent.length ? urgent.map(t => tankCard(t)) : empty('✅', S.loaded || T.length ? '조치가 필요한 탱크가 없습니다.' : '데이터를 불러오는 중입니다.'));
+  renderCharts();
+  const recent = S.charges.slice(0, 5);
+  setHTML('dashRecent', recent.length ? recent.map(c => chargeItem(c)) : empty('📋', '충전 기록이 없습니다.'));
+}
+function chargeItem(c, withActions) {
+  return html`<div class="item" data-action="chargeDetail" data-cid="${c._id}" role="button" tabindex="0">
+    <div class="item-main"><div class="item-title">${c.tankId}</div>
+      <div class="item-sub">${fmtDT(c.date)} · ${c.charger || '-'}${c.usage ? raw(' · <b style="color:var(--gold2)">' + esc(c.usage) + '</b>') : ''}${c.note ? ' · ' + c.note : ''}</div></div>
+    <div class="item-val">${c.pressure}<small> bar</small></div>
+    ${withActions ? html`<div class="item-actions"><button class="mini gold" data-action="editCharge" data-cid="${c._id}">수정</button><button class="mini red" data-action="deleteCharge" data-cid="${c._id}">삭제</button></div>` : ''}
+  </div>`;
+}
+function renderCharts() {
+  // 월별 막대
+  const months = [], now = new Date();
+  for (let i = 5; i >= 0; i--) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); months.push({ key: localMonth(d), label: (d.getMonth() + 1) + '월', n: 0 }); }
+  const idx = Object.fromEntries(months.map((m, i) => [m.key, i]));
+  S.charges.forEach(c => { const k = chargeDay(c).slice(0, 7); if (k in idx) months[idx[k]].n++; });
+  const mx = Math.max(1, ...months.map(m => m.n));
+  setHTML('chartMonthly', months.map((m, i) => html`<div class="bar ${i === 5 ? 'cur' : ''}"><b>${m.n}</b><i style="height:${Math.max(3, Math.round(m.n / mx * 80))}px"></i><span>${m.label}</span></div>`));
+  // 상태 도넛
+  const groups = [
+    { k: ['ok', 'inspSoon'], label: '정상', color: '#34d17a' }, { k: ['airSoon'], label: '만료 임박', color: '#f5b22e' },
+    { k: ['pLow'], label: '압력 부족', color: '#ff8a3d' }, { k: ['airExp'], label: '공기 만료', color: '#ff5d5d' },
+    { k: ['inspDue'], label: '검사 초과', color: '#b98bff' }, { k: ['sending', 'failed'], label: '발송·사용금지', color: '#8399b8' }
+  ];
+  const prim = S.tanks.map(primary); const total = prim.length;
+  groups.forEach(g => { g.n = prim.filter(p => g.k.includes(p)).length; });
+  let off = 0; const r = 15.9155;
+  const arcs = total ? groups.filter(g => g.n).map(g => { const len = g.n / total * 100; const s = `<circle r="${r}" cx="21" cy="21" fill="none" stroke="${g.color}" stroke-width="5.5" stroke-dasharray="${len.toFixed(3)} ${(100 - len).toFixed(3)}" stroke-dashoffset="${(25 - off).toFixed(3)}"/>`; off += len; return s; }).join('') : '';
+  setHTML('chartDonut', html`<svg width="112" height="112" viewBox="0 0 42 42" role="img" aria-label="상태 분포"><circle r="${r}" cx="21" cy="21" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="5.5"/>${raw(arcs)}<text x="21" y="20" text-anchor="middle" fill="#eef3fb" font-size="8" font-weight="700" font-family="JetBrains Mono,monospace">${total}</text><text x="21" y="26.5" text-anchor="middle" fill="#8399b8" font-size="3.6">전체</text></svg>
+    <div class="legend">${groups.map(g => html`<div class="lg"><i style="background:${g.color}"></i><span>${g.label}</span><b>${g.n}</b></div>`)}</div>`);
+  // 이번 달 사용 내용
+  const mk = localMonth(), cnt = {};
+  S.charges.forEach(c => { if (chargeDay(c).startsWith(mk)) { const u = c.usage || '미기재'; cnt[u] = (cnt[u] || 0) + 1; } });
+  const rows = Object.entries(cnt).sort((a, b) => b[1] - a[1]); const um = Math.max(1, ...rows.map(r => r[1]));
+  setHTML('chartUsage', rows.length ? rows.map(([u, n]) => html`<div class="hbar"><div class="row"><span>${u}</span><b>${n}건</b></div><div class="track"><i style="width:${Math.round(n / um * 100)}%"></i></div></div>`) : html`<p class="small dim" style="padding:8px 0">이번 달 충전 기록이 없습니다.</p>`);
+}
+
+/* ── 칩 필터 ── */
+function chips(elId, scope, key, opts) {
+  setHTML(elId, opts.map(([v, label]) => html`<button class="chip ${F[scope][key] === v ? 'active' : ''}" data-action="chip" data-scope="${scope}" data-key="${key}" data-val="${v}">${label}</button>`));
+}
+const locOpts = () => [['all', '📍 전체 위치'], ...LOCATIONS.map(l => [l, l]), ['', '미지정']];
+const purOpts = () => [['all', '전체 용도'], ...Object.entries(PURPOSES).map(([k, p]) => [k, p.emoji + ' ' + p.label])];
+function filterCommon(t, f) {
+  if (f.loc !== 'all' && (t.location || '') !== f.loc) return false;
+  if (f.pur !== 'all' && (t.purpose || '') !== f.pur) return false;
+  return true;
+}
+
+function renderTanks() {
+  const f = F.tanks;
+  chips('chipsTankSt', 'tanks', 'st', [['all', '전체'], ['airExp', '공기만료'], ['airSoon', '만료임박'], ['pLow', '압력부족'], ['insp', '검사필요'], ['blocked', '사용금지·발송']]);
+  chips('chipsTankLoc', 'tanks', 'loc', locOpts());
+  chips('chipsTankPur', 'tanks', 'pur', purOpts());
+  chips('chipsTankSort', 'tanks', 'sort', [['status', '정렬: 상태순'], ['id', 'ID순'], ['loc', '위치순'], ['pressure', '압력 낮은순']]);
+  const q = f.q.trim().toLowerCase();
+  let list = S.tanks.filter(t => {
+    if (q && ![t.id, t.location, volDisplay(t.vol)].some(v => String(v || '').toLowerCase().includes(q))) return false;
+    if (!filterCommon(t, f)) return false;
+    return f.st === 'all' || CAT[f.st].fn(t);
+  });
+  const byId = (a, b) => String(a.id || '').localeCompare(String(b.id || ''), 'ko', { numeric: true });
+  const sorters = { status: (a, b) => RANK[primary(a)] - RANK[primary(b)] || byId(a, b), id: byId, loc: (a, b) => String(a.location || '').localeCompare(String(b.location || '')) || byId(a, b), pressure: (a, b) => pressure(a) / maxP(a) - pressure(b) / maxP(b) };
+  list.sort(sorters[f.sort]);
+  $('tankCount').textContent = `${list.length}개 탱크` + (list.length !== S.tanks.length ? ` (전체 ${S.tanks.length})` : '');
+  setHTML('tankList', list.length ? list.map(t => tankCard(t)) : empty('🔍', S.tanks.length ? '조건에 맞는 탱크가 없습니다.' : '등록된 탱크가 없습니다. 아래에서 등록하세요.'));
+}
+
+/* ── 일정 (캘린더 + 점검 대상) ── */
+function urgency(t) {
+  const v = [], a = air(t), i = insp(t);
+  if (!t.sendingInsp) v.push(a.st === 'none' ? -99999 : a.left);
+  if (i.left !== null && i.left !== undefined) v.push(i.left);
+  return v.length ? Math.min(...v) : null;
+}
+function renderSchedule() {
+  renderCalendar();
+  const c = cfg();
+  setHTML('ruleNotice', html`<b>🔬 압력검사</b> · 경과 ${c.inspAgeYears}년 이하 <b>${c.inspYoung}년</b>마다, 초과 <b>${c.inspOld}년</b>마다 (고압가스 안전관리법 기준 · 설정에서 변경)<br>
+    <span class="tiny dim">기준일: 마지막 검사일 → 없으면 제조연월/도입연도(추정). 기본 주기 중 경과연수를 넘기면 그 시점부터 노후 주기 적용. 실제 기한은 용기 각인과 검사증으로 확인하세요.</span><br>
+    <b>💨 재충전</b> · 충전 후 <b>${c.airValidDays}일</b> 경과 시 배출 후 재충전 <span class="tiny dim">(훈령 제269호 제23조 제3항 제1호)</span>`);
+  chips('chipsSchSt', 'sch', 'st', [['all', '전체'], ['due', '🔴 기한도래·초과'], ['week', '🟠 7일 이내'], ['month', '🟡 30일 이내'], ['ok', '🟢 여유']]);
+  chips('chipsSchLoc', 'sch', 'loc', locOpts());
+  chips('chipsSchPur', 'sch', 'pur', purOpts());
+  chips('chipsSchSort', 'sch', 'sort', [['insp', '정렬: 검사 임박순'], ['air', '충전만료 임박순'], ['id', 'ID순']]);
+  const f = F.sch;
+  let list = S.tanks.filter(t => {
+    if (!filterCommon(t, f)) return false;
+    const u = urgency(t);
+    if (f.st === 'due') return u !== null && u <= 0;
+    if (f.st === 'week') return u !== null && u <= 7;
+    if (f.st === 'month') return u !== null && u <= 30;
+    if (f.st === 'ok') return u === null || u > 30;
+    return true;
+  });
+  const nz = (v, d) => (v === null || v === undefined) ? d : v;
+  const sorters = {
+    insp: (a, b) => nz(insp(a).left, 1e9) - nz(insp(b).left, 1e9),
+    air: (a, b) => nz(air(a).left, -1e9) - nz(air(b).left, -1e9),
+    id: (a, b) => String(a.id || '').localeCompare(String(b.id || ''), 'ko', { numeric: true })
+  };
+  list.sort(sorters[f.sort]);
+  $('schCount').textContent = `${list.length}개 탱크`;
+  setHTML('schList', list.length ? list.map(schCard) : empty('🔬', '해당하는 탱크가 없습니다.'));
+}
+function schCard(t) {
+  const a = air(t), i = insp(t), u = urgency(t);
+  const cls = isBlocked(t) ? 's-danger' : u === null ? 's-dim' : u <= 0 ? 's-danger' : u <= 7 ? 's-orange' : u <= 30 ? 's-warn' : 's-ok';
+  const iTxt = t.inspFailed ? '⛔ 불합격 — 재검사/폐기 필요' : i.st === 'unknown' ? '정보 없음' : html`${ymdOr(i.next)} <b>(${dLabel(i.left)})</b>${i.estimated ? ' ⚠️추정' : ''}`;
+  const aTxt = t.sendingInsp ? '검사 발송중' : a.st === 'none' ? '충전기록 없음' : html`${ymdOr(a.exp)} <b>(${dLabel(a.left)})</b>`;
+  const ageBase = t.mfgDate ? `제조 ${t.mfgDate}` : t.introduceYear ? `도입 ${t.introduceYear}년` : '제조/도입 정보 없음';
+  return html`<button class="tank ${cls}" data-action="tank" data-key="${t._id}">
+    <div class="tank-ic"><svg class="ic"><use href="#i-cal"/></svg></div>
+    <div class="tank-body">
+      <div class="tank-id">${t.id} <span class="tag t-dim">📍${t.location || '미지정'}</span></div>
+      <div class="tank-meta">🔬 다음 검사: ${iTxt}</div>
+      <div class="tank-meta">💨 공기 만료: ${aTxt}</div>
+      <div class="tank-meta dim">${ageBase} · 검사주기 ${i.cycle ? i.cycle + '년' : '-'}${i.switched ? '(노후 전환)' : ''}${i.cycleEst ? '(추정)' : ''} · 최근검사 ${t.lastInspDate || '기록없음'}</div>
+    </div>
+  </button>`;
+}
+const ymdOr = d => d ? localDate(d) : '-';
+function calMarks(y, m) {
+  const marks = {};
+  const add = (d, type, t) => { if (d && d.getFullYear() === y && d.getMonth() === m) { const k = d.getDate(); (marks[k] = marks[k] || { insp: [], exp: [] })[type].push(t); } };
+  S.tanks.forEach(t => { const i = insp(t); if (i.next) add(i.next, 'insp', t); if (!t.sendingInsp) { const a = air(t); if (a.exp) add(a.exp, 'exp', t); } });
+  return marks;
+}
+function renderCalendar() {
+  const { y, m } = cal, first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate(), td = today();
+  const marks = calMarks(y, m);
+  const cells = [];
+  for (let i = 0; i < first; i++) cells.push(html`<div class="cal-d empty"></div>`);
+  for (let d = 1; d <= days; d++) {
+    const mk = marks[d], isT = td.getFullYear() === y && td.getMonth() === m && td.getDate() === d;
+    const label = mk ? `${d}일: 검사 ${mk.insp.length}개, 충전만료 ${mk.exp.length}개` : `${d}일`;
+    cells.push(html`<button class="cal-d ${isT ? 'today' : ''} ${mk ? 'has' : ''}" ${mk ? raw(`data-action="calDay" data-day="${d}"`) : raw('tabindex="-1"')} aria-label="${label}">${d}<span class="cal-dots">${mk && mk.insp.length ? raw('<i style="background:var(--purple)"></i>') : ''}${mk && mk.exp.length ? raw('<i style="background:var(--danger)"></i>') : ''}</span></button>`);
+  }
+  setHTML('calendar', html`<div class="cal-nav"><button class="icon-btn" data-action="calMove" data-dir="-1" aria-label="이전 달"><svg class="ic"><use href="#i-left"/></svg></button>
+    <strong>${y}년 ${m + 1}월</strong><button class="icon-btn" data-action="calMove" data-dir="1" aria-label="다음 달"><svg class="ic"><use href="#i-right"/></svg></button></div>
+    <div class="cal-grid">${WEEK.map(w => html`<div class="cal-h">${w}</div>`)}${cells}</div>
+    <div class="cal-legend"><span><i style="background:var(--purple)"></i>압력검사 기한</span><span><i style="background:var(--danger)"></i>충전 만료일</span><button class="mini" data-action="calToday" style="margin-left:auto">오늘</button></div>`);
+}
+function groupByLoc(list) {
+  const g = {}; list.forEach(t => { const l = t.location || '미지정'; (g[l] = g[l] || []).push(t); });
+  return Object.keys(g).sort().map(k => [k, g[k]]);
+}
+function openCalDay(d) {
+  const mk = calMarks(cal.y, cal.m)[d]; if (!mk) return;
+  const sec = (title, color, list, fnTxt) => !list.length ? '' : html`<div class="small" style="color:${raw(color)};font-weight:800;margin:6px 0">${title} (${list.length})</div>
+    ${groupByLoc(list).map(([loc, arr]) => html`<div class="tiny dim" style="margin:8px 0 4px;font-weight:700">📍 ${loc}</div>${arr.map(t => html`<button class="item" data-action="tank" data-key="${t._id}"><div class="item-main"><div class="item-title">${t.id}</div><div class="item-sub">${volDisplay(t.vol)}</div></div><b class="small" style="color:${raw(color)}">${fnTxt(t)}</b></button>`)}`)}`;
+  openList(`📅 ${cal.y}년 ${cal.m + 1}월 ${d}일`, `압력검사 ${mk.insp.length}개 · 충전만료 ${mk.exp.length}개`,
+    html`${sec('🔬 압력검사 기한', 'var(--purple)', mk.insp, t => dLabel(insp(t).left))}${sec('💨 충전 만료', 'var(--danger)', mk.exp, t => dLabel(air(t).left))}`);
+}
+
+/* ── 이력 ── */
+function renderHistory() {
+  const f = F.hist, q = f.q.trim().toLowerCase();
+  const list = S.charges.filter(c => {
+    if (f.month && !chargeDay(c).startsWith(f.month)) return false;
+    if (q && ![c.tankId, c.charger, c.usage, c.note].some(v => String(v || '').toLowerCase().includes(q))) return false;
+    return true;
+  });
+  $('histCount').textContent = `${list.length}건` + (f.month ? ` · ${f.month.replace('-', '년 ')}월` : ' · 전체 기간');
+  if (!list.length) { setHTML('histList', empty('📋', '충전 기록이 없습니다.')); return; }
+  const shown = list.slice(0, f.limit), out = []; let last = '';
+  const perDay = {}; list.forEach(c => { const d = chargeDay(c); perDay[d] = (perDay[d] || 0) + 1; });
+  shown.forEach(c => {
+    const d = chargeDay(c);
+    if (d !== last) { const dd = toDay(d); out.push(html`<div class="day-head"><span>${dd ? fmtKDay(dd) : '날짜 없음'}</span><span class="dim">${perDay[d]}건</span></div>`); last = d; }
+    out.push(chargeItem(c, true));
+  });
+  if (list.length > shown.length) out.push(html`<button class="btn btn-line" style="margin-top:10px" data-action="histMore">더 보기 (${list.length - shown.length}건 남음)</button>`);
+  setHTML('histList', out);
+}
+
+/* ── 설정 ── */
+function renderSettings() {
+  document.querySelectorAll('[data-cfg]').forEach(el => { if (document.activeElement !== el) el.value = cfg()[el.dataset.cfg] ?? ''; });
+  if (document.activeElement !== $('setCharger')) $('setCharger').value = Local.get('dev', {}).charger || '';
+  $('setEmail').textContent = CONFIG.sharedEmail ? '구조대 공용 계정' : ((Auth.data && Auth.data.email) || '-');
+  $('setSync').textContent = S.lastSync ? fmtFull(S.lastSync) : '-';
+  $('setProject').textContent = CONFIG.projectId;
+  updatePushBtn();
+}
+const pendingCfg = {};
+const flushCfg = debounce(async () => {
+  const data = { ...pendingCfg }; Object.keys(pendingCfg).forEach(k => delete pendingCfg[k]);
+  if (!Object.keys(data).length) return;
+  try { await DB.commit([DB.update('config', 'settings', { ...data, ...stamp() }, false)]); saveCache(); toast('설정이 저장되었습니다 (모든 기기 적용)'); }
+  catch (e) { toast('설정 저장 실패: ' + e.message, true); }
+}, 800);
+function onCfgInput(el) {
+  const k = el.dataset.cfg; let v;
+  if (k === 'unit') v = el.value.trim().slice(0, 40);
+  else {
+    const n = parseInt(el.value, 10), [lo, hi] = CFG_RANGE[k];
+    if (isNaN(n) || n < lo || n > hi) { el.style.borderColor = 'var(--danger)'; return; }
+    el.style.borderColor = ''; v = n;
+  }
+  S.cfg[k] = v; pendingCfg[k] = v;
+  renderAll(); flushCfg();
+}
+
+/* ══════════ 탱크 상세 ══════════ */
+let detailKey = null;
+function openDetail(key) {
+  const t = findTank(key); if (!t) { toast('탱크를 찾을 수 없습니다. 동기화 후 다시 시도하세요.', true); return; }
+  detailKey = key; renderDetail();
+  if (topModal() === 'mList') swapModal('mList', 'mDetail'); else openModal('mDetail');
+}
+function renderDetail() {
+  const t = findTank(detailKey); if (!t) return;
+  const a = air(t), i = insp(t), l = life(t), pct = Math.round(pressure(t) / maxP(t) * 100);
+  const mfg = mfgDay(t), age = mfg ? ((today() - mfg) / (365.25 * 864e5)).toFixed(1) : null;
+  const tC = S.charges.filter(c => c.tankId === t.id).slice(0, 5);
+  const tI = S.insps.filter(x => x.tankId === t.id).slice(0, 5);
+  const blocked = isBlocked(t);
+  $('dTitle').textContent = t.id;
+  const airTxt = t.sendingInsp ? '검사 발송중' : a.st === 'none' ? '충전 기록 없음' : html`${localDate(a.exp)} 만료 <b>(${dLabel(a.left)})</b>`;
+  const airColor = { ok: 'var(--ok)', soon: 'var(--warn)', expired: 'var(--danger)', none: 'var(--danger)' }[a.st];
+  const inspTxt = i.st === 'unknown' ? '정보 없음 (제조연월·검사일 입력 필요)' : html`${localDate(i.next)} <b>(${dLabel(i.left)})</b>${i.estimated ? ' · 추정' : ''}`;
+  const failTxt = t.inspFailed ? html`<b>불합격 — 재검사 또는 폐기 필요</b>` : null;
+  const inspColor = t.inspFailed ? 'var(--danger)' : { due: 'var(--danger)', week: 'var(--orange)', soon: 'var(--warn)', ok: 'var(--ok)', unknown: 'var(--sub)' }[i.st];
+  setHTML('dBody', html`
+    <div class="card" style="background:var(--bg2)">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="tank-ic" style="width:54px;height:54px;--lc:var(--gold2)"><svg class="ic" style="width:32px;height:32px"><use href="#i-tank"/></svg></div>
+        <div style="flex:1">
+          <div class="mono" style="font-size:28px;font-weight:700;color:${pLow(t) ? 'var(--warn)' : 'var(--text)'}">${pressure(t)} <span style="font-size:14px;color:var(--dim)">/ ${maxP(t)} bar</span></div>
+          <div class="small muted">${pct}% · ${volDisplay(t.vol)}${t.purpose ? ' · ' + purposeLabel(t.purpose) : ''}</div>
+        </div>
+      </div>
+      <div class="pbar ${pLow(t) ? 'low' : ''}" style="width:100%;height:6px;margin:12px 0 8px"><i style="width:${Math.min(100, pct)}%"></i></div>
+      <div>${tankTags(t)}</div>
+    </div>
+    ${t.inspFailed ? html`<div class="notice danger" style="margin-top:10px">⛔ <b>압력검사 불합격</b> 기록이 있어 사용·충전이 금지된 용기입니다. 재검사 합격 기록을 입력하면 해제됩니다.</div>` : ''}
+    ${l && l.st === 'expired' ? html`<div class="notice danger" style="margin-top:10px">⛔ 설정한 <b>사용수명(${t.lifeYears}년)</b>이 ${localDate(l.end)}에 경과했습니다.</div>` : ''}
+    ${t.sendingInsp ? html`<div class="notice orange" style="margin-top:10px">📦 <b>압력검사 발송중</b> · 발송일 ${t.sendingInspDate || '-'} · 검사 결과를 기록하면 자동 해제됩니다.</div>` : ''}
+    <div class="card" style="margin-top:10px;padding:4px 14px">
+      <div class="kv"><span class="k">📍 보관 위치</span><span class="v">${t.location || '미지정'}</span></div>
+      <div class="kv"><span class="k">💨 공기 유효</span><span class="v" style="color:${raw(t.sendingInsp ? 'var(--orange)' : airColor)}">${airTxt}</span></div>
+      <div class="kv"><span class="k">마지막 충전일</span><span class="v">${t.lastChargeDate || '-'}</span></div>
+      <div class="kv"><span class="k">🔬 다음 압력검사</span><span class="v" style="color:${raw(inspColor)}">${failTxt || inspTxt}</span></div>
+      <div class="kv"><span class="k">검사 주기</span><span class="v">${i.cycle ? i.cycle + '년' : '-'}${+t.inspCycle ? ' (지정)' : i.switched ? ' (노후 주기 전환)' : i.cycleEst ? ' (추정)' : ' (자동)'}</span></div>
+      <div class="kv"><span class="k">마지막 압력검사</span><span class="v">${t.lastInspDate || '기록 없음'}</span></div>
+      <div class="kv"><span class="k">제조연월 / 도입</span><span class="v">${t.mfgDate || '-'} / ${t.introduceYear ? t.introduceYear + '년' : '-'}${age ? ` · ${age}년 경과` : ''}</span></div>
+      ${t.lifeYears ? html`<div class="kv"><span class="k">사용수명</span><span class="v">${t.lifeYears}년${l ? ` · ${localDate(l.end)}까지` : ' (제조연월 필요)'}</span></div>` : ''}
+    </div>
+    <button class="btn btn-gold" style="margin-top:12px" data-action="chargeFromDetail" ${blocked || t.sendingInsp ? raw('disabled') : ''}><svg class="ic"><use href="#i-bolt"/></svg>충전 기록하기</button>
+    <div class="btn-row">
+      <button class="btn btn-purple" data-action="openInsp">🔬 검사 기록</button>
+      ${t.sendingInsp ? html`<button class="btn btn-ok" data-action="toggleSend">✅ 발송 해제</button>` : html`<button class="btn btn-orange" data-action="toggleSend">📦 검사 발송</button>`}
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-line" data-action="editTank">✏️ 정보 수정</button>
+      <button class="btn btn-danger" data-action="deleteTank">🗑 삭제</button>
+    </div>
+    <div class="sec-title">충전 이력 <span class="count">최근 ${tC.length}건</span></div>
+    ${tC.length ? tC.map(c => chargeItem(c)) : html`<p class="small dim">충전 기록 없음</p>`}
+    <div class="sec-title">압력검사 이력</div>
+    ${tI.length ? tI.map(x => html`<div class="item"><div class="item-main"><div class="item-title" style="font-family:inherit">${x.date || '-'} · ${x.org || '기관 미기재'}</div>${x.note ? html`<div class="item-sub">${x.note}</div>` : ''}</div><span class="tag ${x.result === '합격' ? 't-ok' : x.result === '불합격' ? 't-danger' : 't-warn'}">${x.result || '-'}</span></div>`) : html`<p class="small dim">검사 기록 없음</p>`}
+  `);
+}
+async function toggleSend(btn) {
+  const t = findTank(detailKey); if (!t) return;
+  const on = !t.sendingInsp;
+  if (!confirm(on ? `[${t.id}] 압력검사 발송 처리할까요?\n발송중에는 충전이 차단되고 만료 경고에서 제외됩니다.` : `[${t.id}] 발송 상태를 해제할까요?\n(검사 결과는 '검사 기록'으로 입력하는 것을 권장합니다)`)) return;
+  await runAction(btn, async () => {
+    const upd = { sendingInsp: on, sendingInspDate: on ? localDate() : '', ...stamp() };
+    await commit([DB.update('tanks', t._id, upd)], () => Object.assign(t, upd));
+    toast(on ? `📦 ${t.id} 검사 발송 처리` : `✅ ${t.id} 발송 해제`);
+  });
+}
+async function deleteTank(btn) {
+  const t = findTank(detailKey); if (!t) return;
+  const cs = S.charges.filter(c => c.tankId === t.id), is = S.insps.filter(x => x.tankId === t.id);
+  if (!confirm(`탱크 [${t.id}]를 삭제할까요?\n충전 기록 ${cs.length}건, 검사 기록 ${is.length}건도 함께 삭제되며 되돌릴 수 없습니다.`)) return;
+  const typed = prompt(`확인을 위해 탱크 ID를 입력하세요: ${t.id}`);
+  if (typed === null) return;
+  if (typed.trim().toUpperCase() !== String(t.id).toUpperCase()) { toast('ID가 일치하지 않아 삭제를 취소했습니다.', true); return; }
+  await runAction(btn, async () => {
+    const writes = [...cs.map(c => DB.del('charges', c._id)), ...is.map(x => DB.del('inspections', x._id)), DB.del('tanks', t._id)];
+    await commit(writes, () => {
+      const cids = new Set(cs.map(c => c._id)), iids = new Set(is.map(x => x._id));
+      S.charges = S.charges.filter(c => !cids.has(c._id)); S.insps = S.insps.filter(x => !iids.has(x._id)); S.tanks = S.tanks.filter(x => x._id !== t._id);
+    });
+    closeModal('mDetail'); toast(`🗑 ${t.id} 삭제 완료`);
+  });
+}
+
+/* ══════════ 탱크 등록/수정 ══════════ */
+let editKey = null;
+function fillSelect(el, opts, val) { setHTML(el, opts.map(([v, l]) => html`<option value="${v}">${l}</option>`)); if (val !== undefined) el.value = val; }
+function fillVols(purpose, keepLabel) {
+  const list = CYLINDERS[purpose] || [];
+  const opts = list.length ? [['', '-- 선택 --'], ...list.map((v, i) => [String(i), v.label])] : [['', '-- 용도를 먼저 선택 --']];
+  if (keepLabel && !list.some(v => v.label === keepLabel)) opts.push(['__keep', '기존값 유지: ' + volDisplay(keepLabel)]);
+  fillSelect($('fVol'), opts);
+  if (keepLabel) { const i = list.findIndex(v => v.label === keepLabel); $('fVol').value = i >= 0 ? String(i) : '__keep'; }
+}
+function openTankForm(key, preset = {}) {
+  editKey = key || null;
+  const t = key ? findTank(key) : null;
+  $('tfTitle').textContent = t ? '✏️ 탱크 정보 수정' : '＋ 탱크 등록';
+  $('fIdHint').classList.toggle('hidden', !t);
+  fillSelect($('fPurpose'), [['', '-- 선택 --'], ...Object.entries(PURPOSES).map(([k, p]) => [k, p.emoji + ' ' + p.label])], t ? (t.purpose || '') : '');
+  fillVols(t ? t.purpose : '', t ? t.vol : null);
+  $('fId').value = t ? t.id : (preset.id || '');
+  $('fMaxP').value = String(t ? maxP(t) : 300);
+  if (t && !$('fMaxP').value) { $('fMaxP').insertAdjacentHTML('beforeend', `<option value="${esc(maxP(t))}">${esc(maxP(t))} bar</option>`); $('fMaxP').value = String(maxP(t)); }
+  $('fPressure').value = t ? pressure(t) : '';
+  $('fLoc').value = t ? (t.location || '') : '';
+  $('fMfg').value = t ? (t.mfgDate || '') : '';
+  $('fYear').value = t ? (t.introduceYear || '') : '';
+  $('fCycle').value = t && t.inspCycle ? String(t.inspCycle) : '';
+  $('fLife').value = t ? (t.lifeYears || '') : '';
+  $('fLastInsp').value = t ? (t.lastInspDate || '') : '';
+  $('fLastCharge').value = t ? (t.lastChargeDate || '') : localDate();
+  const td = localDate(); $('fLastInsp').max = td; $('fLastCharge').max = td; $('fMfg').max = localMonth();
+  if (t && topModal() === 'mDetail') swapModal('mDetail', 'mTank');
+  else if (topModal() === 'mList') swapModal('mList', 'mTank');
+  else openModal('mTank');
+}
+async function saveTank(btn) {
+  const t = editKey ? findTank(editKey) : null;
+  if (editKey && !t) { toast('탱크가 삭제되었습니다. 동기화 후 다시 시도하세요.', true); return; }
+  const id = $('fId').value.trim().toUpperCase().replace(/\s+/g, '');
+  const purpose = $('fPurpose').value, volSel = $('fVol').value;
+  if (!id) return toast('탱크 ID를 입력하세요.', true);
+  if (/[\/\\]/.test(id)) return toast('ID에 / 또는 \\ 문자는 쓸 수 없습니다.', true);
+  if (S.tanks.some(x => x !== t && String(x.id || '').toUpperCase() === id)) return toast('이미 등록된 ID입니다.', true);
+  if (!purpose && !t) return toast('용도를 선택하세요.', true);
+  if (!volSel) return toast('용기 용량을 선택하세요.', true);
+  const vol = volSel === '__keep' ? t.vol : (CYLINDERS[purpose] || [])[+volSel]?.label;
+  if (!vol) return toast('용기 용량을 선택하세요.', true);
+  const p = numOrNull($('fPressure').value), year = numOrNull($('fYear').value), lifeY = numOrNull($('fLife').value);
+  const mxP = parseInt($('fMaxP').value, 10);
+  if (p !== null && (p < 0 || p > 400)) return toast('현재 압력은 0~400 bar 범위로 입력하세요.', true);
+  if (p !== null && p > mxP * 1.1) return toast(`현재 압력이 최대압력(${mxP} bar)을 크게 초과합니다.`, true);
+  if (year !== null && (year < 1970 || year > new Date().getFullYear())) return toast('도입 연도를 확인하세요.', true);
+  if (lifeY !== null && (lifeY < 1 || lifeY > 60)) return toast('사용수명은 1~60년으로 입력하세요.', true);
+  const td = localDate(), lastInsp = $('fLastInsp').value, lastCharge = $('fLastCharge').value, mfg = $('fMfg').value;
+  if ((lastInsp && lastInsp > td) || (lastCharge && lastCharge > td)) return toast('미래 날짜는 입력할 수 없습니다.', true);
+  if (mfg && mfg > localMonth()) return toast('제조연월이 미래입니다.', true);
+  const data = {
+    id, purpose, vol, maxP: mxP, pressure: p ?? 0, location: $('fLoc').value, mfgDate: mfg, introduceYear: year,
+    inspCycle: numOrNull($('fCycle').value), lifeYears: lifeY, lastInspDate: lastInsp, lastChargeDate: lastCharge
+  };
+  await runAction(btn, async () => {
+    if (!t) {
+      const _id = DB.newId(), doc = { ...data, sendingInsp: false, inspFailed: false, createdAt: new Date().toISOString(), ...stamp() };
+      await commit([DB.create('tanks', _id, doc)], () => S.tanks.push({ ...doc, _id }));
+      closeModal('mTank'); toast(`✅ ${id} 등록 완료`);
+      if (S.page === 'scan') lookup(id);
+      return;
+    }
+    const changed = {};
+    Object.entries(data).forEach(([k, v]) => { if ((t[k] ?? null) !== (v ?? null) && !(t[k] === undefined && (v === '' || v === null))) changed[k] = v; });
+    if (!Object.keys(changed).length) { swapModal('mTank', 'mDetail'); detailKey = t._id; renderDetail(); toast('변경된 내용이 없습니다.'); return; }
+    const writes = [DB.update('tanks', t._id, { ...changed, ...stamp() })];
+    const oldId = t.id, idChanged = 'id' in changed;
+    if (idChanged) {
+      S.charges.filter(c => c.tankId === oldId).forEach(c => writes.push(DB.update('charges', c._id, { tankId: id })));
+      S.insps.filter(x => x.tankId === oldId).forEach(x => writes.push(DB.update('inspections', x._id, { tankId: id })));
+    }
+    await commit(writes, () => {
+      Object.assign(t, changed, stamp());
+      if (idChanged) { S.charges.forEach(c => { if (c.tankId === oldId) c.tankId = id; }); S.insps.forEach(x => { if (x.tankId === oldId) x.tankId = id; }); }
+    });
+    detailKey = t._id; renderDetail(); swapModal('mTank', 'mDetail');
+    toast('✅ 탱크 정보가 수정되었습니다');
+  });
+}
+
+/* ══════════ 압력검사 기록 ══════════ */
+function openInsp() {
+  const t = findTank(detailKey); if (!t) return;
+  $('iTank').value = t.id; $('iDate').value = localDate(); $('iDate').max = localDate();
+  $('iOrg').value = ''; $('iNote').value = ''; $('iResult').value = '합격'; $('iFailNote').classList.add('hidden');
+  swapModal('mDetail', 'mInsp');
+}
+async function saveInsp(btn) {
+  const t = findTank(detailKey); if (!t) return toast('탱크를 찾을 수 없습니다.', true);
+  const date = $('iDate').value, result = $('iResult').value;
+  if (!date) return toast('검사일을 입력하세요.', true);
+  if (date > localDate()) return toast('미래 날짜는 입력할 수 없습니다.', true);
+  const rec = { tankId: t.id, date, org: $('iOrg').value.trim(), result, note: $('iNote').value.trim(), createdAt: new Date().toISOString(), createdBy: (Auth.data && Auth.data.email) || '' };
+  const latest = !t.lastInspDate || date >= t.lastInspDate;
+  const upd = latest ? { lastInspDate: date, inspFailed: result === '불합격', sendingInsp: false, sendingInspDate: '', ...stamp() } : null;
+  await runAction(btn, async () => {
+    const _id = DB.newId(), writes = [DB.create('inspections', _id, rec)];
+    if (upd) writes.push(DB.update('tanks', t._id, upd));
+    await commit(writes, () => { S.insps.push({ ...rec, _id }); if (upd) Object.assign(t, upd); });
+    renderDetail(); swapModal('mInsp', 'mDetail');
+    toast(result === '불합격' ? `⛔ ${t.id} 불합격 기록 — 사용금지 처리됨` : `🔬 ${t.id} 압력검사 기록 완료`, result === '불합격');
+  });
+}
+
+/* ══════════ 충전 (스캔) ══════════ */
+let scanTank = null;
+function usageOptions(sel, value) {
+  const custom = value && !USAGES.includes(value) && value !== '기타';
+  fillSelect(sel, [['', '-- 선택하세요 --'], ...USAGES.map(u => [u, u]), ['기타', '기타 (직접 입력)']], custom ? '기타' : (value || ''));
+  const wrap = $(sel.dataset.usageSelect); wrap.classList.toggle('hidden', sel.value !== '기타');
+  const etc = wrap.querySelector('input'); etc.value = custom ? value : '';
+}
+const usageValue = (selId, etcId) => { const v = $(selId).value; return v === '기타' ? ($(etcId).value.trim() || '기타') : v; };
+function lookup(input) {
+  const id = String(input || '').trim().toUpperCase();
+  if (!id) return toast('탱크 ID를 입력하세요.', true);
+  $('manualId').value = '';
+  const t = findTankById(id);
+  scanTank = t;
+  const box = $('scanResult'); box.classList.remove('hidden');
+  if (!t) {
+    $('chargeForm').classList.add('hidden');
+    setHTML(box, html`<div class="result-id">${id}</div><div class="notice warn" style="margin:10px 0">⚠️ 등록되지 않은 탱크입니다. 먼저 등록해야 충전 기록을 남길 수 있습니다.</div>
+      <button class="btn btn-gold" data-action="registerScanned" data-id="${id}"><svg class="ic"><use href="#i-plus"/></svg>이 ID로 탱크 등록</button>`);
+    return;
+  }
+  const blocked = isBlocked(t) || t.sendingInsp;
+  setHTML(box, html`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+      <div><div class="result-id">${t.id}</div><div class="small muted">${volDisplay(t.vol)} · 📍${t.location || '미지정'}</div></div>
+      <button class="mini gold" data-action="tank" data-key="${t._id}">상세</button></div>
+    <div style="margin-top:8px">${tankTags(t)}</div>
+    ${blocked ? html`<div class="notice danger" style="margin-top:10px">⛔ ${t.sendingInsp ? '압력검사 발송중인 탱크입니다.' : '사용금지 상태의 탱크입니다.'} 충전할 수 없습니다.</div>` : ''}`);
+  if (blocked) { $('chargeForm').classList.add('hidden'); return; }
+  usageOptions($('cUsage'), '');
+  $('cLoc').value = LOCATIONS.includes(t.location) ? t.location : LOCATIONS[0];
+  $('cPre').value = pressure(t); $('cPost').value = maxP(t);
+  $('cWhen').value = localDT(); $('cWhen').max = localDT(new Date(Date.now() + 5 * 60000));
+  const dev = Local.get('dev', {}); $('cCharger').value = dev.charger || dev.lastCharger || '';
+  $('cNote').value = '';
+  $('chargeForm').classList.remove('hidden');
+  setTimeout(() => $('chargeForm').scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+}
+async function saveCharge(btn) {
+  const t = scanTank && findTank(scanTank._id);
+  if (!t) return toast('탱크 정보를 다시 조회하세요.', true);
+  if (isBlocked(t) || t.sendingInsp) return toast('충전할 수 없는 상태의 탱크입니다.', true);
+  const usage = usageValue('cUsage', 'cUsageEtc'), post = numOrNull($('cPost').value), pre = numOrNull($('cPre').value);
+  const loc = $('cLoc').value, charger = $('cCharger').value.trim(), whenV = $('cWhen').value;
+  if (!usage) return toast('사용 내용을 선택하세요.', true);
+  if (post === null || post <= 0 || post > 400) return toast('충전 후 압력을 1~400 bar로 입력하세요.', true);
+  if (pre !== null && (pre < 0 || pre > 400)) return toast('충전 전 압력을 확인하세요.', true);
+  if (!charger) return toast('충전 담당자를 입력하세요.', true);
+  const when = whenV ? new Date(whenV) : new Date();
+  if (isNaN(when)) return toast('충전 일시를 확인하세요.', true);
+  if (when.getTime() > Date.now() + 5 * 60000) return toast('미래 시각은 입력할 수 없습니다.', true);
+  if (post > maxP(t) && !confirm(`충전 압력 ${post} bar가 최대압력 ${maxP(t)} bar를 초과합니다.\n그대로 저장할까요?`)) return;
+  const day = localDate(when);
+  const rec = { tankId: t.id, date: when.toISOString(), pressure: post, prePressure: pre, usage, charger, note: $('cNote').value.trim(), location: loc, createdBy: (Auth.data && Auth.data.email) || '' };
+  const upd = {};
+  if (loc !== (t.location || '')) upd.location = loc;
+  if (!t.lastChargeDate || day >= t.lastChargeDate) { upd.pressure = post; upd.lastChargeDate = day; }
+  await runAction(btn, async () => {
+    const _id = DB.newId(), writes = [DB.create('charges', _id, rec)];
+    if (Object.keys(upd).length) writes.push(DB.update('tanks', t._id, { ...upd, ...stamp() }));
+    await commit(writes, () => { S.charges.push({ ...rec, _id }); Object.assign(t, upd); });
+    const dev = Local.get('dev', {}); dev.lastCharger = charger; Local.set('dev', dev);
+    toast(`✅ ${t.id} 충전 기록 완료 · ${loc}`);
+    cancelCharge(); $('manualId').focus();
+  });
+}
+function cancelCharge() { $('chargeForm').classList.add('hidden'); $('scanResult').classList.add('hidden'); scanTank = null; }
+
+/* ── 바코드 스캐너: 브라우저 내장 BarcodeDetector 우선, 미지원 시 Quagga ── */
+const Scan = {
+  on: false, stream: null, timer: null, mode: null, det: null, lastCode: '', hits: 0,
+  async start() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return toast('카메라를 사용할 수 없습니다. (HTTPS 접속 필요)', true);
+    this.on = true; this.ui(true);
+    try {
+      if ('BarcodeDetector' in window) {
+        const sup = await BarcodeDetector.getSupportedFormats();
+        const want = ['code_128', 'code_39', 'code_93', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'itf', 'codabar', 'qr_code', 'data_matrix'].filter(f => sup.includes(f));
+        if (want.length) {
+          this.det = new BarcodeDetector({ formats: want });
+          this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+          if (!this.on) return this.stop();
+          const v = $('scanVideo'); v.classList.remove('hidden'); v.srcObject = this.stream; await v.play();
+          this.mode = 'native';
+          this.timer = setInterval(async () => {
+            if (!this.on || v.readyState < 2) return;
+            try { const r = await this.det.detect(v); if (r.length) this.found(r[0].rawValue); } catch (e) { }
+          }, 220);
+          return;
+        }
+      }
+      await loadScript(CDN.quagga);
+      if (!this.on) return;
+      $('scanVideo').classList.add('hidden');
+      this.mode = 'quagga';
+      await new Promise((res, rej) => Quagga.init({
+        inputStream: { name: 'Live', type: 'LiveStream', target: $('quaggaBox'), constraints: { facingMode: 'environment' } },
+        decoder: { readers: ['code_128_reader', 'code_39_reader', 'ean_reader', 'upc_reader', 'i2of5_reader'] }, locate: true
+      }, err => err ? rej(err) : res()));
+      if (!this.on) return this.stop();
+      Quagga.onDetected(this.onQuagga); Quagga.start();
+    } catch (e) {
+      this.stop();
+      toast(e && e.name === 'NotAllowedError' ? '카메라 권한이 거부되었습니다. 브라우저 설정에서 허용하세요.' : '카메라를 시작하지 못했습니다: ' + (e.message || e), true);
+    }
+  },
+  onQuagga(data) {   // 오인식 방지: 같은 코드가 2번 연속 인식될 때만 채택
+    const code = data && data.codeResult && data.codeResult.code; if (!code) return;
+    if (code === Scan.lastCode) { if (++Scan.hits >= 2) Scan.found(code); } else { Scan.lastCode = code; Scan.hits = 1; }
+  },
+  found(code) { if (!this.on) return; this.stop(); if (navigator.vibrate) navigator.vibrate(80); lookup(code); },
+  stop() {
+    const was = this.on; this.on = false;
+    clearInterval(this.timer); this.timer = null;
+    if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null; }
+    const v = $('scanVideo'); if (v) v.srcObject = null;
+    if (this.mode === 'quagga' && window.Quagga) { try { Quagga.offDetected(this.onQuagga); Quagga.stop(); } catch (e) { } $('quaggaBox').innerHTML = ''; }
+    this.mode = null; this.lastCode = ''; this.hits = 0;
+    if (was || !$('scanView').classList.contains('hidden')) this.ui(false);
+  },
+  ui(on) {
+    $('scanView').classList.toggle('hidden', !on); $('scanIdle').classList.toggle('hidden', on);
+    $('scanBtn').querySelector('span').textContent = on ? '스캔 중지' : '카메라 스캔 시작';
+  }
+};
+
+/* ══════════ 충전 기록 상세·수정·삭제 ══════════ */
+const findCharge = id => S.charges.find(c => c._id === id);
+const latestChargeOf = (tankId, list = S.charges) => list.filter(c => c.tankId === tankId).reduce((m, c) => (!m || chargeTs(c) > chargeTs(m)) ? c : m, null);
+function openChargeDetail(cid) {
+  const c = findCharge(cid); if (!c) return toast('기록을 찾을 수 없습니다.', true);
+  const t = findTankById(c.tankId);
+  openList('충전 기록', fmtFull(c.date), html`<div class="card" style="padding:4px 14px">
+    <div class="kv"><span class="k">탱크 ID</span><span class="v mono">${c.tankId}</span></div>
+    <div class="kv"><span class="k">충전 압력</span><span class="v">${c.prePressure !== null && c.prePressure !== undefined ? c.prePressure + ' → ' : ''}${c.pressure} bar</span></div>
+    <div class="kv"><span class="k">사용 내용</span><span class="v">${c.usage || '-'}</span></div>
+    <div class="kv"><span class="k">담당자</span><span class="v">${c.charger || '-'}</span></div>
+    <div class="kv"><span class="k">보관 위치</span><span class="v">${c.location || (t && t.location) || '-'}</span></div>
+    ${c.note ? html`<div class="kv"><span class="k">비고</span><span class="v">${c.note}</span></div>` : ''}
+  </div>
+  <div class="btn-row">${t ? html`<button class="btn btn-line" data-action="tank" data-key="${t._id}">탱크 상세</button>` : html`<span></span>`}<button class="btn btn-line" data-action="editCharge" data-cid="${c._id}">✏️ 수정</button></div>`);
+}
+let editCid = null;
+function openChargeEdit(cid) {
+  const c = findCharge(cid); if (!c) return toast('기록을 찾을 수 없습니다.', true);
+  editCid = cid;
+  $('ceTank').value = c.tankId; $('ceWhen').value = c.date ? localDT(new Date(c.date)) : '';
+  $('cePre').value = c.prePressure ?? ''; $('cePost').value = c.pressure ?? '';
+  usageOptions($('ceUsage'), c.usage || ''); $('ceCharger').value = c.charger || ''; $('ceNote').value = c.note || '';
+  if (topModal() === 'mList') swapModal('mList', 'mCharge'); else openModal('mCharge');
+}
+async function saveChargeEdit(btn) {
+  const c = findCharge(editCid); if (!c) return toast('기록이 삭제되었습니다.', true);
+  const post = numOrNull($('cePost').value), pre = numOrNull($('cePre').value), whenV = $('ceWhen').value;
+  if (post === null || post <= 0 || post > 400) return toast('충전 후 압력을 확인하세요.', true);
+  if (pre !== null && (pre < 0 || pre > 400)) return toast('충전 전 압력을 확인하세요.', true);
+  const when = whenV ? new Date(whenV) : new Date(c.date);
+  if (isNaN(when) || when.getTime() > Date.now() + 5 * 60000) return toast('충전 일시를 확인하세요.', true);
+  const next = { date: when.toISOString(), pressure: post, prePressure: pre, usage: usageValue('ceUsage', 'ceUsageEtc'), charger: $('ceCharger').value.trim(), note: $('ceNote').value.trim() };
+  if (fmtFull(next.date) === fmtFull(c.date)) next.date = c.date;   // 분 단위가 같으면 원래 값 유지
+  const changed = {}; Object.entries(next).forEach(([k, v]) => { if ((c[k] ?? null) !== (v ?? null)) changed[k] = v; });
+  if (!Object.keys(changed).length) { closeModal('mCharge'); return; }
+  const writes = [DB.update('charges', c._id, { ...changed, ...stamp() })];
+  // 이 기록이 해당 탱크의 최신 기록이었거나 최신이 되면 탱크 압력/충전일도 맞춤
+  const t = findTankById(c.tankId), wasLatest = latestChargeOf(c.tankId) === c;
+  const after = S.charges.map(x => x === c ? { ...c, ...changed } : x), newLatest = latestChargeOf(c.tankId, after);
+  let tUpd = null;
+  if (t && (wasLatest || newLatest._id === c._id)) {
+    const d = chargeDay(newLatest);
+    tUpd = { pressure: newLatest.pressure };
+    if (!t.lastChargeDate || wasLatest || d > t.lastChargeDate) tUpd.lastChargeDate = d;
+    writes.push(DB.update('tanks', t._id, { ...tUpd, ...stamp() }));
+  }
+  await runAction(btn, async () => {
+    await commit(writes, () => { Object.assign(c, changed); if (tUpd) Object.assign(t, tUpd); });
+    closeModal('mCharge'); toast('✅ 충전 기록이 수정되었습니다' + (tUpd ? ' (탱크 상태 반영)' : ''));
+  });
+}
+async function deleteCharge(cid, btn) {
+  const c = findCharge(cid); if (!c) return toast('기록을 찾을 수 없습니다.', true);
+  if (!confirm(`[${c.tankId}] ${fmtFull(c.date)} · ${c.pressure} bar 충전 기록을 삭제할까요?`)) return;
+  const t = findTankById(c.tankId), wasLatest = latestChargeOf(c.tankId) === c;
+  const writes = [DB.del('charges', c._id)]; let tUpd = null;
+  if (t && wasLatest && t.lastChargeDate === chargeDay(c)) {
+    const prev = latestChargeOf(c.tankId, S.charges.filter(x => x !== c));
+    if (prev) { tUpd = { lastChargeDate: chargeDay(prev), pressure: prev.pressure }; writes.push(DB.update('tanks', t._id, { ...tUpd, ...stamp() })); }
+  }
+  await runAction(btn, async () => {
+    await commit(writes, () => { S.charges = S.charges.filter(x => x !== c); if (tUpd) Object.assign(t, tUpd); });
+    if (topModal() === 'mList') closeModal('mList');
+    toast('🗑 충전 기록 삭제' + (tUpd ? ` · ${t.id} 마지막 충전일을 ${tUpd.lastChargeDate}로 되돌림` : ''));
+  });
+}
+
+/* ══════════ 목록 팝업 ══════════ */
+function openList(title, sub, body) {
+  $('lTitle').textContent = title; $('lSub').textContent = sub || ''; setHTML('lBody', body);
+  if (topModal() === 'mList') { $('mList').querySelector('.sheet').scrollTop = 0; return; }
+  openModal('mList');
+}
+function openCatList(cat) {
+  const c = CAT[cat], list = S.tanks.filter(c.fn).sort((a, b) => RANK[primary(a)] - RANK[primary(b)]);
+  if (!list.length) return toast(`${c.label}: 해당 탱크가 없습니다.`);
+  openList(c.label, `총 ${list.length}개`, html`<div class="list">${list.map(t => tankCard(t))}</div>`);
+}
+function maybeExpirePopup() {
+  if (sessionStorage.getItem('acm_popup')) return;
+  const list = S.tanks.filter(t => CAT.airExp.fn(t) || CAT.airSoon.fn(t) || isBlocked(t)).sort((a, b) => RANK[primary(a)] - RANK[primary(b)]);
+  if (!list.length) return;
+  sessionStorage.setItem('acm_popup', '1');
+  openList('⚠️ 충전 필요 공기통', `만료 ${S.tanks.filter(CAT.airExp.fn).length}개 · 임박 ${S.tanks.filter(CAT.airSoon.fn).length}개`, html`<div class="list">${list.map(t => tankCard(t))}</div>`);
+}
+
+/* ══════════ 알림 ══════════ */
+async function notify(title, body, tag) {
+  const opt = { body, tag, icon: 'icon-192.png', badge: 'icon-192.png' };
+  try { const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration(); if (reg) { await reg.showNotification(title, opt); return true; } } catch (e) { }
+  try { new Notification(title, opt); return true; } catch (e) { return false; }   // 안드로이드 크롬은 서비스워커 없이는 지원 안 함
+}
+function checkNotify() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const day = localDate(); let sent = Local.get('notified', {}); if (sent.date !== day) sent = { date: day, k: [] };
+  const exp = S.tanks.filter(CAT.airExp.fn).length, soon = S.tanks.filter(CAT.airSoon.fn).length, due = S.tanks.filter(t => !t.sendingInsp && insp(t).st === 'due').length;
+  const jobs = [];
+  if (exp && !sent.k.includes('exp')) jobs.push(['exp', '🔴 공기통 충전 만료', `${exp}개 탱크의 공기 유효기간이 지났습니다.`]);
+  else if (!exp && soon && !sent.k.includes('soon')) jobs.push(['soon', '🟡 공기통 만료 임박', `${soon}개 탱크가 곧 만료됩니다.`]);
+  if (due && !sent.k.includes('insp')) jobs.push(['insp', '🔬 압력검사 기한 초과', `${due}개 탱크의 압력검사 기한이 지났습니다.`]);
+  jobs.forEach(([k, t, b]) => { notify(t, b, 'acm-' + k); sent.k.push(k); });
+  Local.set('notified', sent);
+}
+function updatePushBtn() {
+  const b = $('pushBtn');
+  if (!('Notification' in window)) { b.textContent = '미지원'; b.disabled = true; return; }
+  b.textContent = Notification.permission === 'granted' ? '허용됨 ✅' : Notification.permission === 'denied' ? '차단됨' : '허용';
+}
+async function pushToggle() {
+  if (!('Notification' in window)) return toast('이 브라우저는 알림을 지원하지 않습니다. (홈 화면에 추가 후 이용)', true);
+  if (Notification.permission === 'granted') return toast('이미 허용되어 있습니다.');
+  if (Notification.permission === 'denied') return toast('알림이 차단되어 있습니다. 브라우저 사이트 설정에서 허용하세요.', true);
+  const p = await Notification.requestPermission(); updatePushBtn();
+  if (p === 'granted') { toast('✅ 알림이 허용되었습니다'); checkNotify(); } else toast('알림이 허용되지 않았습니다.', true);
+}
+async function pushTest() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return toast('먼저 알림을 허용하세요.', true);
+  toast(await notify('해양경찰 공기통 관리시스템', '테스트 알림입니다 🌊', 'acm-test') ? '테스트 알림을 보냈습니다.' : '이 기기에서는 sw.js 파일이 함께 배포되어야 알림이 동작합니다.', false);
+}
+function afterSync() { checkNotify(); maybeExpirePopup(); }
+
+/* ══════════ 보고서 ══════════ */
+function openReport() {
+  $('rMonth').value = localMonth(); $('rUnit').value = cfg().unit || '';
+  const dev = Local.get('dev', {}); $('rWriter').value = dev.charger || dev.lastCharger || '';
+  $('rReviewer').value = dev.reviewer || ''; $('rApprover').value = dev.approver || '';
+  openModal('mReport');
+}
+function printReport() {
+  const mon = $('rMonth').value; if (!mon) return toast('대상 연월을 선택하세요.', true);
+  const unit = $('rUnit').value.trim() || '해양경찰', writer = $('rWriter').value.trim(), reviewer = $('rReviewer').value.trim(), approver = $('rApprover').value.trim();
+  const dev = Local.get('dev', {}); dev.reviewer = reviewer; dev.approver = approver; Local.set('dev', dev);
+  const [y, m] = mon.split('-'), label = `${y}년 ${+m}월`, printed = fmtKDay(new Date());
+  const list = S.charges.filter(c => chargeDay(c).startsWith(mon)).sort((a, b) => chargeTs(a) - chargeTs(b));
+  const byTank = {}; list.forEach(c => { (byTank[c.tankId] = byTank[c.tankId] || []).push(c); });
+  const usage = {}; list.forEach(c => { const u = c.usage || '미기재'; usage[u] = (usage[u] || 0) + 1; });
+  const tankVol = id => { const t = findTankById(id); return t ? volDisplay(t.vol) : '-'; };
+  const rows = list.map((c, i) => html`<tr><td>${i + 1}</td><td>${fmtFull(c.date)}</td><td class="l b">${c.tankId}</td><td class="w">${tankVol(c.tankId)}</td><td>${c.prePressure ?? '-'}</td><td class="b">${c.pressure}</td><td>${c.charger || '-'}</td><td class="w l">${c.usage || ''}${c.note ? ' · ' + c.note : ''}</td></tr>`);
+  const sumRows = Object.entries(byTank).sort((a, b) => a[0].localeCompare(b[0], 'ko', { numeric: true })).map(([id, cs]) => {
+    const t = findTankById(id), a = t ? air(t) : null, last = cs[cs.length - 1];
+    const st = !t ? '삭제됨' : t.sendingInsp ? '검사발송' : isBlocked(t) ? '사용금지' : a.st === 'expired' || a.st === 'none' ? '만료' : a.st === 'soon' ? '임박' : '정상';
+    return html`<tr><td class="l b">${id}</td><td class="w">${tankVol(id)}</td><td>${cs.length}회</td><td class="b">${last.pressure} bar</td><td>${chargeDay(last)}</td><td class="${st === '정상' ? 'ok' : 'ng'}">${st}</td></tr>`;
+  });
+  const sign = (role, name) => html`<div class="ac"><div class="al">${role}</div><div class="an">${name}</div></div>`;
+  const doc = html`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>${label} 공기통 충전 보고서 - ${unit}</title>
+<style>${raw(`@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap");
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Noto Sans KR",sans-serif;color:#111;font-size:10pt;background:#fff}
+.page{padding:14mm 14mm 12mm;position:relative}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:3px solid #1a2f5e;padding-bottom:10px;margin-bottom:12px}
+.org{font-size:10pt;color:#1a2f5e;font-weight:700;display:flex;align-items:center;gap:8px}.org img{height:26px}h1{font-size:19pt;font-weight:900;margin-top:4px}.sub{color:#444;margin-top:2px}
+.ab{border:1.5px solid #333;flex-shrink:0}.at{text-align:center;font-size:8.5pt;font-weight:700;background:#1a2f5e;color:#fff;padding:3px 10px;letter-spacing:4px}
+.ar{display:flex}.ac{min-width:62px;text-align:center;border-top:1px solid #333}.ac+.ac{border-left:1px solid #333}.al{font-size:8pt;color:#555;padding:2px 6px;border-bottom:1px solid #ddd}.an{font-weight:700;padding:12px 6px 8px;min-height:44px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:9pt;color:#444;padding:7px 10px;background:#f4f6fa;border-left:4px solid #1a2f5e;margin-bottom:12px}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}.sc{border:1px solid #d6dbe4;border-radius:5px;padding:8px;text-align:center}.sl{font-size:8pt;color:#666}.sv{font-size:16pt;font-weight:900;color:#1a2f5e}
+h2{font-size:10.5pt;color:#1a2f5e;border-left:4px solid #1a2f5e;padding-left:7px;margin:14px 0 7px}
+table{width:100%;border-collapse:collapse;font-size:8.5pt}th{background:#1a2f5e;color:#fff;padding:5px 4px;font-weight:700}td{padding:4px;border-bottom:1px solid #e3e6ec;text-align:center}
+tbody tr:nth-child(even){background:#f6f8fb}td.l{text-align:left}td.b{font-weight:700}td.w{word-break:keep-all}td.ok{color:#17703a;font-weight:700}td.ng{color:#b04a00;font-weight:700}tr{page-break-inside:avoid}
+.us{display:flex;flex-wrap:wrap;gap:6px}.us span{border:1px solid #d6dbe4;border-radius:4px;padding:3px 8px;font-size:9pt}.empty{color:#888;text-align:center;padding:16px}
+.ft{margin-top:16px;padding-top:8px;border-top:1px solid #ccc;font-size:8pt;color:#777;display:flex;justify-content:space-between}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4;margin:0}thead{display:table-header-group}}`)}</style></head><body><div class="page">
+<div class="top"><div><div class="org"><img src="${LOGO}" alt="">KOREA COAST GUARD · ${unit}</div><h1>공기통 충전 관리 보고서</h1><div class="sub">${label} 충전 현황</div></div>
+<div class="ab"><div class="at">결재</div><div class="ar">${sign('담 당', writer)}${reviewer ? sign('검 토', reviewer) : ''}${sign('결 재', approver)}</div></div></div>
+<div class="meta"><span>대상기간: <b>${label}</b></span><span>작성일: <b>${printed}</b></span><span>담당자: <b>${writer || '-'}</b></span><span>공기 유효기간 기준: <b>${cfg().airValidDays}일</b></span></div>
+<div class="sg"><div class="sc"><div class="sl">총 충전 건수</div><div class="sv">${list.length}</div></div><div class="sc"><div class="sl">충전한 탱크</div><div class="sv">${Object.keys(byTank).length}</div></div>
+<div class="sc"><div class="sl">등록 탱크</div><div class="sv">${S.tanks.length}</div></div><div class="sc"><div class="sl">현재 공기 만료</div><div class="sv">${S.tanks.filter(CAT.airExp.fn).length}</div></div></div>
+<h2>사용 내용별</h2>${Object.keys(usage).length ? html`<div class="us">${Object.entries(usage).sort((a, b) => b[1] - a[1]).map(([u, n]) => html`<span>${u} <b>${n}건</b></span>`)}</div>` : html`<p class="empty">기록 없음</p>`}
+<h2>충전 상세 기록</h2>${list.length ? html`<table><thead><tr><th>No</th><th>충전일시</th><th>탱크 ID</th><th>종류</th><th>충전 전<br>(bar)</th><th>충전 후<br>(bar)</th><th>담당자</th><th>사용 내용 · 비고</th></tr></thead><tbody>${rows}</tbody></table>` : html`<p class="empty">해당 월 충전 기록이 없습니다.</p>`}
+<h2>탱크별 충전 현황</h2>${sumRows.length ? html`<table><thead><tr><th>탱크 ID</th><th>종류</th><th>충전 횟수</th><th>최종 압력</th><th>최종 충전일</th><th>현재 상태</th></tr></thead><tbody>${sumRows}</tbody></table>` : html`<p class="empty">데이터 없음</p>`}
+<div class="ft"><span>해양경찰 공기통 관리시스템 · ${unit}</span><span>출력: ${printed}</span></div></div>
+<script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>`;
+  const w = window.open('', '_blank');
+  if (!w) return toast('팝업이 차단되었습니다. 브라우저에서 팝업을 허용하세요.', true);
+  w.document.open(); w.document.write(doc.s); w.document.close();
+  closeModal('mReport');
+}
+
+/* ══════════ 엑셀 ══════════ */
+async function exportExcel(btn) {
+  await runAction(btn, async () => {
+    await loadScript(CDN.xlsx);
+    const wb = XLSX.utils.book_new();
+    const statusTxt = t => PRIMARY_UI[primary(t)].label;
+    const tanks = [['탱크ID', '용도', '용량', '최대압력(bar)', '현재압력(bar)', '보관위치', '제조연월', '도입연도', '마지막충전일', '공기만료일', '마지막검사일', '다음검사일', '검사주기(년)', '상태']];
+    [...S.tanks].sort((a, b) => String(a.id).localeCompare(String(b.id), 'ko', { numeric: true })).forEach(t => {
+      const a = air(t), i = insp(t);
+      tanks.push([t.id, purposeLabel(t.purpose), volDisplay(t.vol), maxP(t), pressure(t), t.location || '', t.mfgDate || '', t.introduceYear || '', t.lastChargeDate || '', a.exp ? localDate(a.exp) : '', t.lastInspDate || '', i.next ? localDate(i.next) + (i.estimated ? ' (추정)' : '') : '', i.cycle || '', statusTxt(t)]);
+    });
+    const ws1 = XLSX.utils.aoa_to_sheet(tanks); ws1['!cols'] = [14, 8, 24, 10, 10, 11, 9, 8, 12, 12, 12, 18, 9, 9].map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws1, '탱크현황');
+    const ch = [['충전일시', '탱크ID', '종류', '충전전(bar)', '충전후(bar)', '사용내용', '담당자', '보관위치', '비고']];
+    S.charges.forEach(c => ch.push([fmtFull(c.date), c.tankId, (findTankById(c.tankId) ? volDisplay(findTankById(c.tankId).vol) : '-'), c.prePressure ?? '', c.pressure, c.usage || '', c.charger || '', c.location || '', c.note || '']));
+    const ws2 = XLSX.utils.aoa_to_sheet(ch); ws2['!cols'] = [17, 14, 22, 10, 10, 14, 10, 11, 24].map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws2, '충전기록');
+    const ins = [['검사일', '탱크ID', '검사기관', '결과', '비고']];
+    S.insps.forEach(x => ins.push([x.date || '', x.tankId || '', x.org || '', x.result || '', x.note || '']));
+    const ws3 = XLSX.utils.aoa_to_sheet(ins); ws3['!cols'] = [12, 14, 20, 10, 24].map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws3, '압력검사기록');
+    XLSX.writeFile(wb, `공기통관리_${(cfg().unit || '해경').replace(/[\\/:*?"<>|\s]/g, '')}_${localDate().replace(/-/g, '')}.xlsx`);
+    toast('📊 엑셀 파일을 내려받았습니다');
+  });
+}
+
+/* ══════════ 로그인 / 로그아웃 ══════════ */
+function showLogin(msg) {
+  $('login').classList.remove('hidden');
+  $('loginEmail').closest('.field').classList.toggle('hidden', !!CONFIG.sharedEmail);
+  $('loginEmail').value = CONFIG.sharedEmail || Local.get('lastEmail', '') || '';
+  $('loginPw').value = ''; $('loginErr').textContent = msg || '';
+  setTimeout(() => (CONFIG.sharedEmail || $('loginEmail').value ? $('loginPw') : $('loginEmail')).focus(), 50);
+}
+async function doLogin(e) {
+  e.preventDefault();
+  const email = (CONFIG.sharedEmail || $('loginEmail').value).trim(), pw = $('loginPw').value, keep = $('keepLogin').checked, btn = $('loginBtn');
+  if (!email || !pw) { $('loginErr').textContent = CONFIG.sharedEmail ? '비밀번호를 입력하세요.' : '계정과 비밀번호를 입력하세요.'; return; }
+  setBusy(btn, true); $('loginErr').textContent = '';
+  try {
+    await Auth.signIn(email, pw, keep);
+    Local.set('lastEmail', email);
+    $('login').classList.add('hidden'); $('loginPw').value = '';
+    startApp();
+  } catch (err) {
+    $('loginErr').textContent = err.message; $('loginPw').value = ''; $('loginPw').focus();
+  } finally { setBusy(btn, false); }
+}
+function startApp() {
+  const cached = loadCache();
+  renderAll(); setConn(cached ? 'connecting' : 'connecting');
+  if (!cached) $('loading').classList.remove('hidden');
+  syncAll({ quiet: true });
+}
+function forceLogout(msg) {
+  Auth.logout(); Local.del('cache'); sessionStorage.removeItem('acm_popup');
+  S.tanks = []; S.charges = []; S.insps = []; S.loaded = false; S.lastSync = 0;
+  while (modalStack.length) closeModal(topModal());
+  Scan.stop(); showPage('dashboard'); $('loading').classList.add('hidden');
+  showLogin(msg);
+}
+async function savePw(btn) {
+  const cur = $('pwCur').value, n1 = $('pwNew').value, n2 = $('pwNew2').value;
+  if (!cur) return toast('현재 비밀번호를 입력하세요.', true);
+  if (n1.length < 8) return toast('새 비밀번호는 8자 이상으로 정하세요.', true);
+  if (n1 !== n2) return toast('새 비밀번호가 서로 다릅니다.', true);
+  if (n1 === cur) return toast('현재 비밀번호와 다르게 정하세요.', true);
+  await runAction(btn, async () => {
+    await Auth.changePassword(cur, n1);
+    ['pwCur', 'pwNew', 'pwNew2'].forEach(i => { $(i).value = ''; });
+    closeModal('mPw'); toast('✅ 비밀번호가 변경되었습니다');
+  });
+}
+
+/* ══════════ 이벤트 ══════════ */
+const ACTIONS = {
+  page: el => showPage(el.dataset.page),
+  tank: el => openDetail(el.dataset.key),
+  catList: el => openCatList(el.dataset.cat),
+  chip: el => { F[el.dataset.scope][el.dataset.key] = el.dataset.val; renderPage(S.page); },
+  calMove: el => { cal.m += +el.dataset.dir; if (cal.m < 0) { cal.m = 11; cal.y--; } if (cal.m > 11) { cal.m = 0; cal.y++; } renderCalendar(); },
+  calToday: () => { const d = new Date(); cal = { y: d.getFullYear(), m: d.getMonth() }; renderCalendar(); },
+  calDay: el => openCalDay(+el.dataset.day),
+  close: el => closeModal(el.closest('.overlay').id),
+  syncNow: () => { if (!navigator.onLine) return toast('오프라인 상태입니다.', true); syncAll(); },
+  togglePw: el => { const i = $('loginPw'); i.type = i.type === 'password' ? 'text' : 'password'; el.setAttribute('aria-label', i.type === 'password' ? '비밀번호 표시' : '비밀번호 숨기기'); },
+  scanToggle: () => Scan.on ? Scan.stop() : Scan.start(),
+  manualLookup: () => lookup($('manualId').value),
+  registerScanned: el => openTankForm(null, { id: el.dataset.id }),
+  saveCharge: el => saveCharge(el),
+  cancelCharge: () => cancelCharge(),
+  addTank: () => openTankForm(null),
+  saveTank: el => saveTank(el),
+  editTank: () => openTankForm(detailKey),
+  deleteTank: el => deleteTank(el),
+  toggleSend: el => toggleSend(el),
+  openInsp: () => openInsp(),
+  saveInsp: el => saveInsp(el),
+  chargeFromDetail: () => { const t = findTank(detailKey); if (!t) return; closeModal('mDetail'); showPage('scan'); lookup(t.id); },
+  chargeDetail: el => openChargeDetail(el.dataset.cid),
+  editCharge: el => openChargeEdit(el.dataset.cid),
+  deleteCharge: el => deleteCharge(el.dataset.cid, el),
+  saveChargeEdit: el => saveChargeEdit(el),
+  histMore: () => { F.hist.limit += 150; renderHistory(); },
+  histMonthClear: () => { F.hist.month = ''; $('histMonth').value = ''; renderHistory(); },
+  openReport: () => openReport(),
+  printReport: () => printReport(),
+  exportExcel: el => exportExcel(el),
+  pushToggle: () => pushToggle(),
+  pushTest: () => pushTest(),
+  openPw: () => openModal('mPw'),
+  savePw: el => savePw(el),
+  logout: () => { if (confirm('로그아웃할까요?\n이 기기에 저장된 데이터도 지워집니다.')) forceLogout(''); }
+};
+document.addEventListener('click', e => {
+  const ov = e.target.classList && e.target.classList.contains('overlay') ? e.target : null;
+  if (ov) { closeModal(ov.id); return; }
+  const el = e.target.closest('[data-action]'); if (!el || el.disabled) return;
+  const fn = ACTIONS[el.dataset.action]; if (!fn) return;
+  e.stopPropagation(); fn(el, e);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && topModal()) { closeModal(topModal()); return; }
+  if (e.key === 'Enter' && e.target.matches && e.target.matches('[role="button"][data-action]')) e.target.click();
+});
+$('loginForm').addEventListener('submit', doLogin);
+$('manualId').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lookup($('manualId').value); } });
+$('tankSearch').addEventListener('input', debounce(e => { F.tanks.q = e.target.value; renderTanks(); }, 150));
+$('histSearch').addEventListener('input', debounce(e => { F.hist.q = e.target.value; F.hist.limit = 150; renderHistory(); }, 150));
+$('histMonth').addEventListener('change', e => { F.hist.month = e.target.value; F.hist.limit = 150; renderHistory(); });
+$('fPurpose').addEventListener('change', e => { fillVols(e.target.value); const v = (CYLINDERS[e.target.value] || [])[0]; if (v) $('fMaxP').value = String(v.maxP); });
+$('fVol').addEventListener('change', e => { const v = (CYLINDERS[$('fPurpose').value] || [])[+e.target.value]; if (v) $('fMaxP').value = String(v.maxP); });
+$('iResult').addEventListener('change', e => $('iFailNote').classList.toggle('hidden', e.target.value !== '불합격'));
+document.querySelectorAll('[data-usage-select]').forEach(sel => sel.addEventListener('change', () => $(sel.dataset.usageSelect).classList.toggle('hidden', sel.value !== '기타')));
+document.querySelectorAll('[data-cfg]').forEach(el => el.addEventListener('input', () => onCfgInput(el)));
+$('setCharger').addEventListener('input', e => { const d = Local.get('dev', {}); d.charger = e.target.value.trim(); Local.set('dev', d); });
+
+/* ══════════ 시작 ══════════ */
+(function init() {
+  document.querySelectorAll('[data-logo]').forEach(e => { e.src = LOGO; }); $('favicon').href = LOGO;
+  document.querySelectorAll('.appver').forEach(e => { e.textContent = CONFIG.version; });
+  document.querySelectorAll('[data-locations]').forEach(sel => fillSelect(sel, [...(sel.dataset.empty ? [['', sel.dataset.empty]] : []), ...LOCATIONS.map(l => [l, l])]));
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => { /* sw.js 미배포 시 무시 */ });
+  startTimers();
+  if (Auth.load()) { $('login').classList.add('hidden'); startApp(); }
+  else showLogin('');
+})();
+
+</script>
+</body>
+</html>
