@@ -239,6 +239,16 @@ select.input option{background:var(--surface2)}
 .bar.cur i{background:linear-gradient(180deg,#fff2c4,var(--gold))}
 .bar b{font-family:var(--mono);font-size:12px;color:var(--gold2)}
 .bar span{font-size:12px;color:var(--dim)}
+.ybars{height:140px}
+button.bar{background:none;border:none;padding:0;cursor:pointer;border-radius:8px}
+button.bar:active{transform:scale(.96)}
+.ybars .bar i{background:linear-gradient(180deg,#d2b4ff,#6e4bb8)}
+.ybars .bar.cur i{background:linear-gradient(180deg,#efe2ff,var(--purple))}
+.ybars .bar.over i{background:linear-gradient(180deg,#ff9b9b,#c0392b)}
+.ybars .bar b{color:var(--text);font-size:14px}
+.ybars .bar.over b{color:#ff9090}
+.cal-n{font-style:normal;font-family:var(--mono);font-size:10px;font-weight:700;line-height:1;min-width:14px;height:14px;padding:0 3px;border-radius:7px;background:var(--gold);color:#0a1424;display:inline-flex;align-items:center;justify-content:center}
+.cal-dots{align-items:center;height:14px}
 .donut-row{display:flex;align-items:center;gap:18px}
 .legend{flex:1}
 .lg{display:flex;align-items:center;gap:8px;font-size:13px;margin:5px 0}
@@ -461,27 +471,31 @@ select.input option{background:var(--surface2)}
     <button class="btn btn-gold" style="margin-top:14px" data-action="addTank"><svg class="ic"><use href="#i-plus"/></svg>탱크 등록</button>
   </section>
 
-  <!-- 일정 -->
+  <!-- 검사이력 (압력 재검사) -->
   <section class="page" id="page-schedule">
-    <div class="card" id="calendar"></div>
+    <div class="card" id="inspBars"></div>
     <div class="notice" id="ruleNotice" style="margin-top:10px"></div>
-    <div class="sec-title">점검 · 재충전 대상</div>
+    <div class="sec-title">재검사 대상</div>
     <div class="chips" id="chipsSchSt"></div>
     <div class="chips" id="chipsSchLoc"></div>
     <div class="chips" id="chipsSchPur"></div>
     <div class="chips" id="chipsSchSort"></div>
     <div class="tiny dim" id="schCount" style="margin:2px 2px 8px"></div>
     <div class="list" id="schList"></div>
+    <div class="sec-title">검사 기록 <span class="count" id="inspRecCount"></span></div>
+    <div id="inspRecList"></div>
   </section>
 
-  <!-- 이력 -->
+  <!-- 충전이력 (공기 충전) -->
   <section class="page" id="page-history">
+    <div class="card" id="chargeCal"></div>
+    <div class="tiny dim" style="margin:8px 2px 0">충전 후 30일 경과 시 배출 후 재충전 (훈령 제269호 제23조 제3항 제1호) · 출동·훈련 사용 후 즉시 충전</div>
+    <div class="sec-title">충전 기록</div>
     <div class="search"><svg class="ic sm"><use href="#i-search"/></svg><input id="histSearch" placeholder="탱크 ID · 담당자 · 사용내용 검색" autocomplete="off"></div>
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <input class="input" type="month" id="histMonth" aria-label="월 선택" style="flex:1">
-      <button class="btn btn-line btn-sm" data-action="histMonthClear">전체 기간</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 4px">
+      <span class="tiny dim" id="histCount"></span>
+      <button class="mini" data-action="histAll" id="histAllBtn">전체 기간 보기</button>
     </div>
-    <div class="tiny dim" id="histCount" style="margin:2px 2px 4px"></div>
     <div id="histList"></div>
   </section>
 
@@ -526,7 +540,7 @@ select.input option{background:var(--surface2)}
     <button class="nav-btn" data-action="page" data-page="tanks"><svg class="ic"><use href="#i-tank"/></svg>용기<i class="badge-dot" id="bd-tanks"></i></button>
   </div></div>
   <div class="nav-group record" style="--n:2" role="group" aria-label="기록"><div class="ng-row">
-    <button class="nav-btn" data-action="page" data-page="schedule"><svg class="ic"><use href="#i-cal"/></svg>점검이력<i class="badge-dot" id="bd-schedule"></i></button>
+    <button class="nav-btn" data-action="page" data-page="schedule"><svg class="ic"><use href="#i-cal"/></svg>검사이력<i class="badge-dot" id="bd-schedule"></i></button>
     <button class="nav-btn" data-action="page" data-page="history"><svg class="ic"><use href="#i-list"/></svg>충전이력</button>
   </div></div>
 </div></nav>
@@ -913,8 +927,8 @@ function decFields(f) { const o = {}; if (f) Object.entries(f).forEach(([k, v]) 
 const S = { tanks: [], charges: [], insps: [], cfg: { ...DEFAULT_CFG }, lastSync: 0, fullSyncAt: 0, conn: 'connecting', loaded: false, syncing: false, page: 'dashboard' };
 const F = {
   tanks: { st: 'all', loc: 'all', pur: 'all', sort: 'status', q: '' },
-  sch: { st: 'all', loc: 'all', pur: 'all', sort: 'insp' },
-  hist: { q: '', month: '', limit: 150 }
+  sch: { st: 'all', loc: 'all', pur: 'all', sort: 'insp', recLimit: 20 },
+  hist: { q: '', all: false, limit: 150 }
 };
 let cal = { y: new Date().getFullYear(), m: new Date().getMonth() };
 const cfg = () => S.cfg;
@@ -1257,103 +1271,145 @@ function renderTanks() {
   setHTML('tankList', list.length ? list.map(t => tankCard(t)) : empty('🔍', S.tanks.length ? '조건에 맞는 탱크가 없습니다.' : '등록된 탱크가 없습니다. 아래에서 등록하세요.'));
 }
 
-/* ── 일정 (캘린더 + 점검 대상) ── */
-function urgency(t) {
-  const v = [], a = air(t), i = insp(t);
-  if (!t.sendingInsp) v.push(a.st === 'none' ? -99999 : a.left);
-  if (i.left !== null && i.left !== undefined) v.push(i.left);
-  return v.length ? Math.min(...v) : null;
+/* ── 검사이력 (압력 재검사 전용: 5년 도래 막대 + 대상 목록 + 검사 기록) ── */
+function inspBuckets() {
+  const y0 = today().getFullYear(), buckets = [{ key: 'over', label: '초과', list: [] }];
+  for (let k = 0; k < 5; k++) buckets.push({ key: String(y0 + k), label: String(y0 + k), list: [] });
+  const later = [], unknown = [];
+  S.tanks.forEach(t => {
+    const i = insp(t);
+    if (t.inspFailed || (i.left !== null && i.left !== undefined && i.left < 0)) { buckets[0].list.push(t); return; }
+    if (i.st === 'unknown') { unknown.push(t); return; }
+    const b = buckets.find(x => x.key === String(i.next.getFullYear()));
+    (b ? b.list : later).push(t);
+  });
+  return { buckets, later, unknown };
+}
+function renderInspBars() {
+  const { buckets, later, unknown } = inspBuckets(), y0 = String(today().getFullYear());
+  const mx = Math.max(1, ...buckets.map(b => b.list.length));
+  setHTML('inspBars', html`<div class="small muted" style="font-weight:700">압력 재검사 도래 현황 (5년)</div>
+    <div class="bars ybars">${buckets.map(b => html`<button class="bar ${b.key === 'over' ? 'over' : b.key === y0 ? 'cur' : ''}" data-action="inspBar" data-key="${b.key}" aria-label="${b.label} ${b.list.length}개">
+      <b>${b.list.length}</b><i style="height:${Math.max(3, Math.round(b.list.length / mx * 84))}px"></i><span>${b.key === 'over' ? '초과' : b.label + '년'}</span></button>`)}</div>
+    <div class="tiny dim" style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap">
+      <span>막대를 누르면 해당 탱크 목록</span>
+      ${unknown.length ? html`<button class="mini" data-action="inspBar" data-key="unknown">검사정보 없음 ${unknown.length}</button>` : ''}
+      ${later.length ? html`<button class="mini" data-action="inspBar" data-key="later">${+y0 + 5}년 이후 ${later.length}</button>` : ''}
+    </div>`);
+}
+function openInspBar(key) {
+  const { buckets, later, unknown } = inspBuckets();
+  const list = key === 'unknown' ? unknown : key === 'later' ? later : (buckets.find(b => b.key === key) || { list: [] }).list;
+  if (!list.length) return toast('해당하는 탱크가 없습니다.');
+  const title = key === 'over' ? '⛔ 압력검사 기한 초과·불합격' : key === 'unknown' ? '검사정보 없음' : key === 'later' ? '5년 이후 도래' : `🔬 ${key}년 압력검사 도래`;
+  const sorted = [...list].sort((a, b) => ((insp(a).next || 0) - (insp(b).next || 0)));
+  const groups = {}; sorted.forEach(t => { const n = insp(t).next; const g = t.inspFailed ? '불합격 (재검사·폐기 필요)' : n ? `${n.getFullYear()}년 ${n.getMonth() + 1}월` : '제조연월·검사일 입력 필요'; (groups[g] = groups[g] || []).push(t); });
+  openList(title, `총 ${list.length}개`, html`${Object.entries(groups).map(([g, arr]) => html`<div class="tiny dim" style="margin:10px 0 4px;font-weight:800">${g} · ${arr.length}개</div>${arr.map(inspItem)}`)}`);
+}
+function inspItem(t) {
+  const i = insp(t);
+  const right = t.inspFailed ? html`<b class="small" style="color:var(--danger)">불합격</b>` : i.next ? html`<b class="small" style="color:${raw(i.left < 0 ? 'var(--danger)' : i.left <= 30 ? 'var(--orange)' : 'var(--purple)')};text-align:right">${localDate(i.next)}<br>${dLabel(i.left)}${i.estimated ? '·추정' : ''}</b>` : html`<b class="small dim">-</b>`;
+  return html`<button class="item" data-action="tank" data-key="${t._id}"><div class="item-main"><div class="item-title">${t.id}</div><div class="item-sub">${volDisplay(t.vol)} · 📍${t.location || '미지정'} · 최근검사 ${t.lastInspDate || '없음'}</div></div>${right}</button>`;
 }
 function renderSchedule() {
-  renderCalendar();
+  renderInspBars();
   const c = cfg();
-  setHTML('ruleNotice', html`<b>🔬 압력검사</b> · 경과 ${c.inspAgeYears}년 이하 <b>${c.inspYoung}년</b>마다, 초과 <b>${c.inspOld}년</b>마다 (고압가스 안전관리법 기준 · 설정에서 변경)<br>
-    <span class="tiny dim">기준일: 마지막 검사일 → 없으면 제조연월/도입연도(추정). 기본 주기 중 경과연수를 넘기면 그 시점부터 노후 주기 적용. 실제 기한은 용기 각인과 검사증으로 확인하세요.</span><br>
-    <b>💨 재충전</b> · 충전 후 <b>${c.airValidDays}일</b> 경과 시 배출 후 재충전 <span class="tiny dim">(훈령 제269호 제23조 제3항 제1호)</span>`);
-  chips('chipsSchSt', 'sch', 'st', [['all', '전체'], ['due', '🔴 기한도래·초과'], ['week', '🟠 7일 이내'], ['month', '🟡 30일 이내'], ['ok', '🟢 여유']]);
+  setHTML('ruleNotice', html`<b>🔬 압력 재검사</b> · 경과 ${c.inspAgeYears}년 이하 <b>${c.inspYoung}년</b>마다, 초과 <b>${c.inspOld}년</b>마다 (고압가스 안전관리법 기준 · 설정에서 변경)<br>
+    <span class="tiny dim">기준일: 마지막 검사일 → 없으면 제조연월/도입연도(추정). 기본 주기 중 경과연수를 넘기면 그 시점부터 노후 주기 적용. 실제 기한은 용기 각인과 검사증으로 확인하세요.</span>`);
+  chips('chipsSchSt', 'sch', 'st', [['all', '전체'], ['due', '🔴 초과·불합격'], ['month', '🟠 30일 이내'], ['year', '🟡 1년 이내'], ['ok', '🟢 여유'], ['unknown', '정보없음']]);
   chips('chipsSchLoc', 'sch', 'loc', locOpts());
   chips('chipsSchPur', 'sch', 'pur', purOpts());
-  chips('chipsSchSort', 'sch', 'sort', [['insp', '정렬: 검사 임박순'], ['air', '충전만료 임박순'], ['id', 'ID순']]);
+  chips('chipsSchSort', 'sch', 'sort', [['insp', '정렬: 검사 임박순'], ['last', '최근검사 오래된순'], ['id', 'ID순']]);
   const f = F.sch;
-  let list = S.tanks.filter(t => {
+  const list = S.tanks.filter(t => {
     if (!filterCommon(t, f)) return false;
-    const u = urgency(t);
-    if (f.st === 'due') return u !== null && u <= 0;
-    if (f.st === 'week') return u !== null && u <= 7;
-    if (f.st === 'month') return u !== null && u <= 30;
-    if (f.st === 'ok') return u === null || u > 30;
+    const i = insp(t), L = i.left;
+    if (f.st === 'due') return !!t.inspFailed || (L !== null && L !== undefined && L < 0);
+    if (f.st === 'month') return L !== null && L !== undefined && L >= 0 && L <= 30;
+    if (f.st === 'year') return L !== null && L !== undefined && L >= 0 && L <= 365;
+    if (f.st === 'ok') return L !== null && L !== undefined && L > 365 && !t.inspFailed;
+    if (f.st === 'unknown') return i.st === 'unknown';
     return true;
   });
   const nz = (v, d) => (v === null || v === undefined) ? d : v;
   const sorters = {
-    insp: (a, b) => nz(insp(a).left, 1e9) - nz(insp(b).left, 1e9),
-    air: (a, b) => nz(air(a).left, -1e9) - nz(air(b).left, -1e9),
+    insp: (a, b) => (b.inspFailed ? 1 : 0) - (a.inspFailed ? 1 : 0) || nz(insp(a).left, 1e9) - nz(insp(b).left, 1e9),
+    last: (a, b) => String(a.lastInspDate || '').localeCompare(String(b.lastInspDate || '')),
     id: (a, b) => String(a.id || '').localeCompare(String(b.id || ''), 'ko', { numeric: true })
   };
   list.sort(sorters[f.sort]);
   $('schCount').textContent = `${list.length}개 탱크`;
   setHTML('schList', list.length ? list.map(schCard) : empty('🔬', '해당하는 탱크가 없습니다.'));
+  const recs = S.insps.slice(0, f.recLimit);
+  $('inspRecCount').textContent = S.insps.length ? `${S.insps.length}건` : '';
+  setHTML('inspRecList', !S.insps.length ? empty('📄', '압력검사 기록이 없습니다.') : html`${recs.map(x => {
+    const t = findTankById(x.tankId);
+    return html`<button class="item" ${t ? raw(`data-action="tank" data-key="${esc(t._id)}"`) : ''}><div class="item-main"><div class="item-title">${x.tankId}</div><div class="item-sub">${x.date || '-'} · ${x.org || '기관 미기재'}${x.note ? ' · ' + x.note : ''}</div></div><span class="tag ${x.result === '합격' ? 't-ok' : x.result === '불합격' ? 't-danger' : 't-warn'}">${x.result || '-'}</span></button>`;
+  })}${S.insps.length > recs.length ? html`<button class="btn btn-line" style="margin-top:8px" data-action="recMore">더 보기 (${S.insps.length - recs.length}건)</button>` : ''}`);
 }
 function schCard(t) {
-  const a = air(t), i = insp(t), u = urgency(t);
-  const cls = isBlocked(t) ? 's-danger' : u === null ? 's-dim' : u <= 0 ? 's-danger' : u <= 7 ? 's-orange' : u <= 30 ? 's-warn' : 's-ok';
-  const iTxt = t.inspFailed ? '⛔ 불합격 — 재검사/폐기 필요' : i.st === 'unknown' ? '정보 없음' : html`${ymdOr(i.next)} <b>(${dLabel(i.left)})</b>${i.estimated ? ' ⚠️추정' : ''}`;
-  const aTxt = t.sendingInsp ? '검사 발송중' : a.st === 'none' ? '충전기록 없음' : html`${ymdOr(a.exp)} <b>(${dLabel(a.left)})</b>`;
+  const i = insp(t);
+  const L = i.left, cls = t.inspFailed ? 's-danger' : i.st === 'unknown' ? 's-dim' : L < 0 ? 's-danger' : L <= 30 ? 's-orange' : L <= 365 ? 's-warn' : 's-ok';
+  const iTxt = t.inspFailed ? '⛔ 불합격 — 재검사/폐기 필요' : i.st === 'unknown' ? '정보 없음 (제조연월·검사일 입력 필요)' : html`${localDate(i.next)} <b>(${dLabel(L)})</b>${i.estimated ? ' ⚠️추정' : ''}`;
   const ageBase = t.mfgDate ? `제조 ${t.mfgDate}` : t.introduceYear ? `도입 ${t.introduceYear}년` : '제조/도입 정보 없음';
+  const lastRec = S.insps.find(x => x.tankId === t.id);
   return html`<button class="tank ${cls}" data-action="tank" data-key="${t._id}">
     <div class="tank-ic"><svg class="ic"><use href="#i-cal"/></svg></div>
     <div class="tank-body">
-      <div class="tank-id">${t.id} <span class="tag t-dim">📍${t.location || '미지정'}</span></div>
+      <div class="tank-id">${t.id} <span class="tag t-dim">📍${t.location || '미지정'}</span>${t.sendingInsp ? html`<span class="tag t-orange">📦 발송중</span>` : ''}</div>
       <div class="tank-meta">🔬 다음 검사: ${iTxt}</div>
-      <div class="tank-meta">💨 공기 만료: ${aTxt}</div>
-      <div class="tank-meta dim">${ageBase} · 검사주기 ${i.cycle ? i.cycle + '년' : '-'}${i.switched ? '(노후 전환)' : ''}${i.cycleEst ? '(추정)' : ''} · 최근검사 ${t.lastInspDate || '기록없음'}</div>
+      <div class="tank-meta">최근검사 ${t.lastInspDate || '기록없음'}${lastRec ? ` (${lastRec.result || '-'}${lastRec.org ? ', ' + lastRec.org : ''})` : ''}</div>
+      <div class="tank-meta dim">${ageBase} · 검사주기 ${i.cycle ? i.cycle + '년' : '-'}${i.switched ? '(노후 전환)' : ''}${i.cycleEst ? '(추정)' : ''}</div>
     </div>
   </button>`;
-}
-const ymdOr = d => d ? localDate(d) : '-';
-function calMarks(y, m) {
-  const marks = {};
-  const add = (d, type, t) => { if (d && d.getFullYear() === y && d.getMonth() === m) { const k = d.getDate(); (marks[k] = marks[k] || { insp: [], exp: [] })[type].push(t); } };
-  S.tanks.forEach(t => { const i = insp(t); if (i.next) add(i.next, 'insp', t); if (!t.sendingInsp) { const a = air(t); if (a.exp) add(a.exp, 'exp', t); } });
-  return marks;
-}
-function renderCalendar() {
-  const { y, m } = cal, first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate(), td = today();
-  const marks = calMarks(y, m);
-  const cells = [];
-  for (let i = 0; i < first; i++) cells.push(html`<div class="cal-d empty"></div>`);
-  for (let d = 1; d <= days; d++) {
-    const mk = marks[d], isT = td.getFullYear() === y && td.getMonth() === m && td.getDate() === d;
-    const label = mk ? `${d}일: 검사 ${mk.insp.length}개, 충전만료 ${mk.exp.length}개` : `${d}일`;
-    cells.push(html`<button class="cal-d ${isT ? 'today' : ''} ${mk ? 'has' : ''}" ${mk ? raw(`data-action="calDay" data-day="${d}"`) : raw('tabindex="-1"')} aria-label="${label}">${d}<span class="cal-dots">${mk && mk.insp.length ? raw('<i style="background:var(--purple)"></i>') : ''}${mk && mk.exp.length ? raw('<i style="background:var(--danger)"></i>') : ''}</span></button>`);
-  }
-  setHTML('calendar', html`<div class="cal-nav"><button class="icon-btn" data-action="calMove" data-dir="-1" aria-label="이전 달"><svg class="ic"><use href="#i-left"/></svg></button>
-    <strong>${y}년 ${m + 1}월</strong><button class="icon-btn" data-action="calMove" data-dir="1" aria-label="다음 달"><svg class="ic"><use href="#i-right"/></svg></button></div>
-    <div class="cal-grid">${WEEK.map(w => html`<div class="cal-h">${w}</div>`)}${cells}</div>
-    <div class="cal-legend"><span><i style="background:var(--purple)"></i>압력검사 기한</span><span><i style="background:var(--danger)"></i>충전 만료일</span><button class="mini" data-action="calToday" style="margin-left:auto">오늘</button></div>`);
 }
 function groupByLoc(list) {
   const g = {}; list.forEach(t => { const l = t.location || '미지정'; (g[l] = g[l] || []).push(t); });
   return Object.keys(g).sort().map(k => [k, g[k]]);
 }
+
+/* ── 충전이력 (공기 충전 전용: 월 달력 + 기록) ── */
+const calKey = () => `${cal.y}-${pad(cal.m + 1)}`;
+function calMarks(y, m) {
+  const marks = {}, key = `${y}-${pad(m + 1)}`;
+  const slot = d => (marks[d] = marks[d] || { chg: [], exp: [] });
+  S.charges.forEach(c => { const d = chargeDay(c); if (d.startsWith(key)) slot(+d.slice(8, 10)).chg.push(c); });
+  S.tanks.forEach(t => { if (t.sendingInsp || isBlocked(t)) return; const a = air(t); if (a.exp && a.exp.getFullYear() === y && a.exp.getMonth() === m) slot(a.exp.getDate()).exp.push(t); });
+  return marks;
+}
+function renderCalendar() {
+  const { y, m } = cal, first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate(), td = today();
+  const marks = calMarks(y, m), cells = [];
+  let monthN = 0; Object.values(marks).forEach(v => { monthN += v.chg.length; });
+  for (let i = 0; i < first; i++) cells.push(html`<div class="cal-d empty"></div>`);
+  for (let d = 1; d <= days; d++) {
+    const mk = marks[d], isT = td.getFullYear() === y && td.getMonth() === m && td.getDate() === d;
+    const label = mk ? `${d}일: 충전 ${mk.chg.length}건, 공기만료 ${mk.exp.length}개` : `${d}일`;
+    cells.push(html`<button class="cal-d ${isT ? 'today' : ''} ${mk ? 'has' : ''}" ${mk ? raw(`data-action="calDay" data-day="${d}"`) : raw('tabindex="-1"')} aria-label="${label}">${d}<span class="cal-dots">${mk && mk.chg.length ? raw(`<em class="cal-n">${mk.chg.length}</em>`) : ''}${mk && mk.exp.length ? raw('<i style="background:var(--danger)"></i>') : ''}</span></button>`);
+  }
+  setHTML('chargeCal', html`<div class="cal-nav"><button class="icon-btn" data-action="calMove" data-dir="-1" aria-label="이전 달"><svg class="ic"><use href="#i-left"/></svg></button>
+    <strong>${y}년 ${m + 1}월 <span class="small muted">· 충전 ${monthN}건</span></strong><button class="icon-btn" data-action="calMove" data-dir="1" aria-label="다음 달"><svg class="ic"><use href="#i-right"/></svg></button></div>
+    <div class="cal-grid">${WEEK.map(w => html`<div class="cal-h">${w}</div>`)}${cells}</div>
+    <div class="cal-legend"><span><em class="cal-n">n</em>충전 건수</span><span><i style="background:var(--danger)"></i>공기 만료일</span><button class="mini" data-action="calToday" style="margin-left:auto">이번 달</button></div>`);
+}
 function openCalDay(d) {
   const mk = calMarks(cal.y, cal.m)[d]; if (!mk) return;
-  const sec = (title, color, list, fnTxt) => !list.length ? '' : html`<div class="small" style="color:${raw(color)};font-weight:800;margin:6px 0">${title} (${list.length})</div>
-    ${groupByLoc(list).map(([loc, arr]) => html`<div class="tiny dim" style="margin:8px 0 4px;font-weight:700">📍 ${loc}</div>${arr.map(t => html`<button class="item" data-action="tank" data-key="${t._id}"><div class="item-main"><div class="item-title">${t.id}</div><div class="item-sub">${volDisplay(t.vol)}</div></div><b class="small" style="color:${raw(color)}">${fnTxt(t)}</b></button>`)}`)}`;
-  openList(`📅 ${cal.y}년 ${cal.m + 1}월 ${d}일`, `압력검사 ${mk.insp.length}개 · 충전만료 ${mk.exp.length}개`,
-    html`${sec('🔬 압력검사 기한', 'var(--purple)', mk.insp, t => dLabel(insp(t).left))}${sec('💨 충전 만료', 'var(--danger)', mk.exp, t => dLabel(air(t).left))}`);
+  const chg = [...mk.chg].sort((a, b) => chargeTs(a) - chargeTs(b));
+  openList(`📅 ${cal.y}년 ${cal.m + 1}월 ${d}일`, `충전 ${chg.length}건 · 공기만료 ${mk.exp.length}개`, html`
+    ${chg.length ? html`<div class="small" style="color:var(--gold2);font-weight:800;margin:4px 0 6px">💨 충전 기록 (${chg.length})</div>${chg.map(c => chargeItem(c))}` : ''}
+    ${mk.exp.length ? html`<div class="small" style="color:var(--danger);font-weight:800;margin:12px 0 6px">⏰ 공기 만료 — 재충전 필요 (${mk.exp.length})</div>${groupByLoc(mk.exp).map(([loc, arr]) => html`<div class="tiny dim" style="margin:8px 0 4px;font-weight:700">📍 ${loc}</div>${arr.map(t => html`<button class="item" data-action="tank" data-key="${t._id}"><div class="item-main"><div class="item-title">${t.id}</div><div class="item-sub">${volDisplay(t.vol)} · 마지막 충전 ${t.lastChargeDate || '-'}</div></div><b class="small" style="color:var(--danger)">${dLabel(air(t).left)}</b></button>`)}`)}` : ''}`);
 }
-
-/* ── 이력 ── */
 function renderHistory() {
-  const f = F.hist, q = f.q.trim().toLowerCase();
+  renderCalendar();
+  const f = F.hist, q = f.q.trim().toLowerCase(), month = f.all ? '' : calKey();
+  $('histAllBtn').textContent = f.all ? '이 달만 보기' : '전체 기간 보기';
   const list = S.charges.filter(c => {
-    if (f.month && !chargeDay(c).startsWith(f.month)) return false;
+    if (month && !chargeDay(c).startsWith(month)) return false;
     if (q && ![c.tankId, c.charger, c.usage, c.note].some(v => String(v || '').toLowerCase().includes(q))) return false;
     return true;
   });
-  $('histCount').textContent = `${list.length}건` + (f.month ? ` · ${f.month.replace('-', '년 ')}월` : ' · 전체 기간');
-  if (!list.length) { setHTML('histList', empty('📋', '충전 기록이 없습니다.')); return; }
+  $('histCount').textContent = `${list.length}건 · ${month ? `${cal.y}년 ${cal.m + 1}월` : '전체 기간'}`;
+  if (!list.length) { setHTML('histList', empty('📋', month ? '이 달의 충전 기록이 없습니다.' : '충전 기록이 없습니다.')); return; }
   const shown = list.slice(0, f.limit), out = []; let last = '';
   const perDay = {}; list.forEach(c => { const d = chargeDay(c); perDay[d] = (perDay[d] || 0) + 1; });
   shown.forEach(c => {
@@ -1970,8 +2026,10 @@ const ACTIONS = {
   tank: el => openDetail(el.dataset.key),
   catList: el => openCatList(el.dataset.cat),
   chip: el => { F[el.dataset.scope][el.dataset.key] = el.dataset.val; renderPage(S.page); },
-  calMove: el => { cal.m += +el.dataset.dir; if (cal.m < 0) { cal.m = 11; cal.y--; } if (cal.m > 11) { cal.m = 0; cal.y++; } renderCalendar(); },
-  calToday: () => { const d = new Date(); cal = { y: d.getFullYear(), m: d.getMonth() }; renderCalendar(); },
+  calMove: el => { cal.m += +el.dataset.dir; if (cal.m < 0) { cal.m = 11; cal.y--; } if (cal.m > 11) { cal.m = 0; cal.y++; } F.hist.limit = 150; renderHistory(); },
+  calToday: () => { const d = new Date(); cal = { y: d.getFullYear(), m: d.getMonth() }; renderHistory(); },
+  inspBar: el => openInspBar(el.dataset.key),
+  recMore: () => { F.sch.recLimit += 30; renderSchedule(); },
   calDay: el => openCalDay(+el.dataset.day),
   close: el => closeModal(el.closest('.overlay').id),
   syncNow: () => { if (!navigator.onLine) return toast('오프라인 상태입니다.', true); syncAll(); },
@@ -1994,7 +2052,7 @@ const ACTIONS = {
   deleteCharge: el => deleteCharge(el.dataset.cid, el),
   saveChargeEdit: el => saveChargeEdit(el),
   histMore: () => { F.hist.limit += 150; renderHistory(); },
-  histMonthClear: () => { F.hist.month = ''; $('histMonth').value = ''; renderHistory(); },
+  histAll: () => { F.hist.all = !F.hist.all; F.hist.limit = 150; renderHistory(); },
   openReport: () => openReport(),
   printReport: () => printReport(),
   exportExcel: el => exportExcel(el),
@@ -2019,7 +2077,6 @@ $('loginForm').addEventListener('submit', doLogin);
 $('manualId').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lookup($('manualId').value); } });
 $('tankSearch').addEventListener('input', debounce(e => { F.tanks.q = e.target.value; renderTanks(); }, 150));
 $('histSearch').addEventListener('input', debounce(e => { F.hist.q = e.target.value; F.hist.limit = 150; renderHistory(); }, 150));
-$('histMonth').addEventListener('change', e => { F.hist.month = e.target.value; F.hist.limit = 150; renderHistory(); });
 $('fPurpose').addEventListener('change', e => { fillVols(e.target.value); const v = (CYLINDERS[e.target.value] || [])[0]; if (v) $('fMaxP').value = String(v.maxP); });
 $('fVol').addEventListener('change', e => { const v = (CYLINDERS[$('fPurpose').value] || [])[+e.target.value]; if (v) $('fMaxP').value = String(v.maxP); });
 $('iResult').addEventListener('change', e => $('iFailNote').classList.toggle('hidden', e.target.value !== '불합격'));
