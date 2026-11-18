@@ -586,9 +586,8 @@ select.input option{background:var(--surface2)}
   <div class="field"><label for="rUnit">관서명</label><input class="input" id="rUnit" maxlength="40"></div>
   <div class="grid2">
     <div class="field"><label for="rWriter">담당</label><input class="input" id="rWriter" maxlength="20"></div>
-    <div class="field"><label for="rReviewer">검토 (선택)</label><input class="input" id="rReviewer" maxlength="20"></div>
+    <div class="field"><label for="rApprover">결재</label><input class="input" id="rApprover" maxlength="20"></div>
   </div>
-  <div class="field"><label for="rApprover">결재</label><input class="input" id="rApprover" maxlength="20"></div>
   <button class="btn btn-gold" data-action="printReport">🖨️ 보고서 출력 (인쇄/PDF)</button>
   <button class="btn btn-ghost" data-action="close">닫기</button>
 </div></div>
@@ -1816,13 +1815,13 @@ function afterSync() { checkNotify(); maybeExpirePopup(); }
 function openReport() {
   $('rMonth').value = localMonth(); $('rUnit').value = cfg().unit || '';
   const dev = Local.get('dev', {}); $('rWriter').value = dev.charger || dev.lastCharger || '';
-  $('rReviewer').value = dev.reviewer || ''; $('rApprover').value = dev.approver || '';
+  $('rApprover').value = dev.approver || '';
   openModal('mReport');
 }
 function printReport() {
   const mon = $('rMonth').value; if (!mon) return toast('대상 연월을 선택하세요.', true);
-  const unit = $('rUnit').value.trim() || '해양경찰', writer = $('rWriter').value.trim(), reviewer = $('rReviewer').value.trim(), approver = $('rApprover').value.trim();
-  const dev = Local.get('dev', {}); dev.reviewer = reviewer; dev.approver = approver; Local.set('dev', dev);
+  const unit = $('rUnit').value.trim() || '해양경찰', writer = $('rWriter').value.trim(), approver = $('rApprover').value.trim();
+  const dev = Local.get('dev', {}); dev.approver = approver; Local.set('dev', dev);
   const [y, m] = mon.split('-'), label = `${y}년 ${+m}월`, printed = fmtKDay(new Date());
   const list = S.charges.filter(c => chargeDay(c).startsWith(mon)).sort((a, b) => chargeTs(a) - chargeTs(b));
   const byTank = {}; list.forEach(c => { (byTank[c.tankId] = byTank[c.tankId] || []).push(c); });
@@ -1849,9 +1848,9 @@ table{width:100%;border-collapse:collapse;font-size:8.5pt}th{background:#1a2f5e;
 tbody tr:nth-child(even){background:#f6f8fb}td.l{text-align:left}td.b{font-weight:700}td.w{word-break:keep-all}td.ok{color:#17703a;font-weight:700}td.ng{color:#b04a00;font-weight:700}tr{page-break-inside:avoid}
 .us{display:flex;flex-wrap:wrap;gap:6px}.us span{border:1px solid #d6dbe4;border-radius:4px;padding:3px 8px;font-size:9pt}.empty{color:#888;text-align:center;padding:16px}
 .ft{margin-top:16px;padding-top:8px;border-top:1px solid #ccc;font-size:8pt;color:#777;display:flex;justify-content:space-between}
-@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4;margin:0}thead{display:table-header-group}}`)}</style></head><body><div class="page">
+@media screen{body{background:#e9edf3}.page{width:210mm;min-height:297mm;margin:12px auto;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.15)}}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:A4;margin:0}.page{width:auto;margin:0;box-shadow:none}thead{display:table-header-group}}`)}</style></head><body><div class="page">
 <div class="top"><div><div class="org"><img src="${LOGO}" alt="">KOREA COAST GUARD · ${unit}</div><h1>공기통 충전 관리 보고서</h1><div class="sub">${label} 충전 현황</div></div>
-<div class="ab"><div class="at">결재</div><div class="ar">${sign('담 당', writer)}${reviewer ? sign('검 토', reviewer) : ''}${sign('결 재', approver)}</div></div></div>
+<div class="ab"><div class="at">결재</div><div class="ar">${sign('담 당', writer)}${sign('결 재', approver)}</div></div></div>
 <div class="meta"><span>대상기간: <b>${label}</b></span><span>작성일: <b>${printed}</b></span><span>담당자: <b>${writer || '-'}</b></span><span>공기 유효기간 기준: <b>${cfg().airValidDays}일</b></span></div>
 <div class="sg"><div class="sc"><div class="sl">총 충전 건수</div><div class="sv">${list.length}</div></div><div class="sc"><div class="sl">충전한 탱크</div><div class="sv">${Object.keys(byTank).length}</div></div>
 <div class="sc"><div class="sl">등록 탱크</div><div class="sv">${S.tanks.length}</div></div><div class="sc"><div class="sl">현재 공기 만료</div><div class="sv">${S.tanks.filter(CAT.airExp.fn).length}</div></div></div>
