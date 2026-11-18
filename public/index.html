@@ -6,8 +6,10 @@
 <meta name="theme-color" content="#0a1424">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AirTank">
+<meta name="application-name" content="AirTank Manager">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://cdnjs.cloudflare.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
-<title>해양경찰 공기통 관리시스템</title>
+<title>AirTank Manager · 해양경찰 공기통 관리시스템</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" id="favicon" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -313,7 +315,8 @@ button.bar:active{transform:scale(.96)}
 .login-box{width:100%;max-width:360px;text-align:center}
 .login-logo{width:170px;height:auto;filter:drop-shadow(0 0 18px rgba(212,178,90,.45));margin-bottom:10px}
 .login h1{font-size:24px;font-weight:900;background:linear-gradient(135deg,#fff,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.login .org{font-size:13px;letter-spacing:3px;color:var(--gold);font-weight:700;margin:2px 0 24px}
+.login .app-en{font-size:17px;font-weight:700;letter-spacing:1.5px;color:var(--sub);margin-top:4px;font-family:var(--mono)}
+.login .org{font-size:12px;letter-spacing:3px;color:var(--gold);font-weight:700;margin:6px 0 24px}
 .login .field{text-align:left}
 .pw-wrap{position:relative}
 .pw-wrap .input{padding-right:52px}
@@ -364,6 +367,7 @@ button.bar:active{transform:scale(.96)}
   <form class="login-box" id="loginForm" autocomplete="on" novalidate>
     <img class="login-logo" data-logo src="data:," alt="해양경찰 로고">
     <h1>공기통 관리시스템</h1>
+    <div class="app-en">AirTank Manager</div>
     <div class="org">KOREA COAST GUARD</div>
     <div class="field">
       <label for="loginEmail">계정 (이메일)</label>
@@ -379,7 +383,7 @@ button.bar:active{transform:scale(.96)}
     <label class="check"><input type="checkbox" id="keepLogin" checked> 이 기기에서 로그인 유지</label>
     <button class="btn btn-gold" type="submit" id="loginBtn">로그인</button>
     <div class="login-err" id="loginErr" role="alert"></div>
-    <div class="login-foot">해양경찰 · 공기통 관리시스템 <span class="appver"></span></div>
+    <div class="login-foot">AirTank Manager <span class="appver"></span> · 해양경찰</div>
   </form>
 </div>
 
@@ -529,7 +533,7 @@ button.bar:active{transform:scale(.96)}
     <div class="set-row"><div><div class="t">마지막 동기화</div><div class="s" id="setSync">-</div></div><button class="btn btn-line btn-sm" data-action="syncNow"><svg class="ic sm"><use href="#i-refresh"/></svg>동기화</button></div>
     <button class="btn btn-danger" data-action="logout" style="margin-top:6px">로그아웃</button>
 
-    <div class="foot"><b>KOREA COAST GUARD</b><br>공기통 관리시스템 <span class="appver"></span> · Firebase <span id="setProject"></span></div>
+    <div class="foot"><b>AirTank Manager</b><br>해양경찰 공기통 관리시스템 <span class="appver"></span> · Firebase <span id="setProject"></span></div>
   </section>
 </div>
 
@@ -654,7 +658,7 @@ button.bar:active{transform:scale(.96)}
 <script>
 'use strict';
 /* ════════════════════════════════════════════════════════════
-   해양경찰 공기통 관리시스템 v5.0
+   AirTank Manager — 해양경찰 공기통 관리시스템 v5.2
    - Firebase Authentication(이메일/비밀번호) + Firestore REST
    - 모든 쓰기는 :commit 배치(원자적) · 변경 필드만 전송(updateMask)
    ════════════════════════════════════════════════════════════ */
@@ -664,7 +668,7 @@ const CONFIG = {
   apiKey: 'AIzaSyCnbz3fZHUskmsA-fEd0s5t3DUA6uSCs9c',
   // 구조대 공용 계정 (Firebase 콘솔 → Authentication에서 이 이메일로 계정 생성). 값이 있으면 로그인 화면은 비밀번호만 받습니다.
   sharedEmail: 'rescue.pohang@airssat.app',
-  version: 'v5.0',
+  version: 'v5.2',
   tankPollMin: 5,            // 화면이 켜져 있을 때 탱크 상태 갱신 주기(분)
   fullSyncMin: 30,           // 전체 데이터 재동기화 주기(분)
   resumeSyncMin: 2           // 앱으로 돌아왔을 때 이 시간 이상 지났으면 전체 동기화(분)
@@ -1910,7 +1914,7 @@ async function pushToggle() {
 }
 async function pushTest() {
   if (!('Notification' in window) || Notification.permission !== 'granted') return toast('먼저 알림을 허용하세요.', true);
-  toast(await notify('해양경찰 공기통 관리시스템', '테스트 알림입니다 🌊', 'acm-test') ? '테스트 알림을 보냈습니다.' : '이 기기에서는 sw.js 파일이 함께 배포되어야 알림이 동작합니다.', false);
+  toast(await notify('AirTank Manager', '테스트 알림입니다 🌊', 'acm-test') ? '테스트 알림을 보냈습니다.' : '이 기기에서는 sw.js 파일이 함께 배포되어야 알림이 동작합니다.', false);
 }
 function afterSync() { checkNotify(); maybeExpirePopup(); }
 
@@ -1960,7 +1964,7 @@ tbody tr:nth-child(even){background:#f6f8fb}td.l{text-align:left}td.b{font-weigh
 <h2>사용 내용별</h2>${Object.keys(usage).length ? html`<div class="us">${Object.entries(usage).sort((a, b) => b[1] - a[1]).map(([u, n]) => html`<span>${u} <b>${n}건</b></span>`)}</div>` : html`<p class="empty">기록 없음</p>`}
 <h2>충전 상세 기록</h2>${list.length ? html`<table><thead><tr><th>No</th><th>충전일시</th><th>탱크 ID</th><th>종류</th><th>충전 전<br>(bar)</th><th>충전 후<br>(bar)</th><th>담당자</th><th>사용 내용 · 비고</th></tr></thead><tbody>${rows}</tbody></table>` : html`<p class="empty">해당 월 충전 기록이 없습니다.</p>`}
 <h2>탱크별 충전 현황</h2>${sumRows.length ? html`<table><thead><tr><th>탱크 ID</th><th>종류</th><th>충전 횟수</th><th>최종 압력</th><th>최종 충전일</th><th>현재 상태</th></tr></thead><tbody>${sumRows}</tbody></table>` : html`<p class="empty">데이터 없음</p>`}
-<div class="ft"><span>해양경찰 공기통 관리시스템 · ${unit}</span><span>출력: ${printed}</span></div></div>
+<div class="ft"><span>AirTank Manager · 해양경찰 공기통 관리시스템 · ${unit}</span><span>출력: ${printed}</span></div></div>
 <script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script></body></html>`;
   const w = window.open('', '_blank');
   if (!w) return toast('팝업이 차단되었습니다. 브라우저에서 팝업을 허용하세요.', true);

@@ -1,8 +1,8 @@
-/* 해양경찰 공기통 관리시스템 — 서비스워커
+/* AirTank Manager (해양경찰 공기통 관리시스템) — 서비스워커
    - 앱 화면(HTML·아이콘·폰트)을 캐시해 전파가 약한 현장에서도 바로 열리게 함
    - Firebase(인증·데이터) 요청은 절대 캐시하지 않음
    - 안드로이드 크롬 알림 표시에 필요 */
-const CACHE = 'acm-v5.2.0';
+const CACHE = 'acm-v5.2.2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

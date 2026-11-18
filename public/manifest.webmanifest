@@ -1,6 +1,6 @@
 {
-  "name": "해양경찰 공기통 관리시스템",
-  "short_name": "공기통관리",
+  "name": "AirTank Manager · 해양경찰 공기통 관리시스템",
+  "short_name": "AirTank",
   "description": "구조대 공기통 충전·압력검사 관리",
   "lang": "ko",
   "start_url": "./",
