@@ -264,14 +264,14 @@ select.input option{background:var(--surface2)}
 .pre-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid var(--line);margin-bottom:12px;font-size:14px}
 
 /* ── 모달 ── */
-.overlay{position:fixed;inset:0;z-index:200;background:rgba(3,8,16,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center}
+.overlay{position:fixed;left:0;right:0;top:0;height:100vh;height:100dvh;z-index:200;background:rgba(3,8,16,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center}
 .overlay.show{display:flex}
 .overlay.center{align-items:center;padding:18px}
-.sheet{width:100%;max-width:680px;max-height:92vh;overflow-y:auto;overscroll-behavior:contain;background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid rgba(212,178,90,.3);border-bottom:none;border-radius:20px 20px 0 0;padding:10px 16px calc(18px + var(--safe-b));animation:up .25s ease}
-.overlay.center .sheet{border-radius:18px;border-bottom:1px solid rgba(212,178,90,.3);max-width:420px;max-height:84vh;padding-bottom:18px}
+.sheet{width:100%;max-width:680px;max-height:calc(100vh - 80px);max-height:calc(100dvh - 16px);overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;background:linear-gradient(180deg,var(--surface2),var(--surface));border:1px solid rgba(212,178,90,.3);border-bottom:none;border-radius:20px 20px 0 0;padding:10px 16px calc(18px + var(--safe-b));animation:up .25s ease}
+.overlay.center .sheet{border-radius:18px;border-bottom:1px solid rgba(212,178,90,.3);max-width:420px;max-height:calc(100vh - 120px);max-height:calc(100dvh - 40px);padding-bottom:18px}
 @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 .grab{width:40px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 12px}
-.sheet-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sheet-head{display:flex;align-items:center;gap:10px;margin:0 -16px 14px;padding:8px 16px;position:sticky;top:-10px;z-index:5;background:var(--surface2);border-bottom:1px solid var(--line)}
 .sheet-head h2{flex:1;font-size:19px;font-weight:900;word-break:break-all}
 .sheet-head .icon-btn{width:38px;height:38px}
 
