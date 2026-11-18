@@ -169,6 +169,8 @@ with sync_playwright() as p:
     page.screenshot(path=f'{SHOTS}/02_expire_popup.png')
     page.click('#mList [data-action=close] >> nth=0'); page.wait_for_timeout(200)
     check('pagination loaded all 7 tanks', page.locator('.stat .val').first.inner_text() == '7', page.locator('.stat .val').first.inner_text())
+    check('bottom nav = 용기/점검이력/충전이력', page.locator('nav.bottom .nav-btn').all_inner_texts() == ['용기', '점검이력', '충전이력'], page.locator('nav.bottom .nav-btn').all_inner_texts())
+    check('header has 현황/스캔/설정', page.locator('header .hbtn').count() == 3)
     check('date is local (KST)', '2026년 11월 18일' in page.inner_text('#heroDate'), page.inner_text('#heroDate'))
     check('monthly chart rendered', page.locator('#chartMonthly .bar').count() == 6)
     check('donut rendered', page.locator('#chartDonut circle').count() >= 2)
@@ -201,7 +203,7 @@ with sync_playwright() as p:
     check('medical 140/150 not low', '압력부족' not in t4.inner_text())
 
     # ── charge flow with location change (the revert bug) at 07:30 KST
-    page.click('nav [data-page=scan]'); page.fill('#manualId', 'scu-001'); page.keyboard.press('Enter')
+    page.click('header [data-page=scan]'); page.fill('#manualId', 'scu-001'); page.keyboard.press('Enter')
     page.wait_for_selector('#chargeForm:not(.hidden)', state='attached')
     page.select_option('#cUsage', '수중수색훈련'); page.select_option('#cLoc', '특장차')
     page.fill('#cPost', '200'); page.fill('#cCharger', '최선근')
@@ -249,7 +251,7 @@ with sync_playwright() as p:
 
     # delete the newest charge of SCU-001 -> tank lastChargeDate reverts to C1 (2026-11-01)
     newid = [k for k, v in store['charges'].items() if v['tankId'] == 'SCU-001' and v['date'].startswith('2026-11-17')][0]
-    page.click(f'#histList [data-action=deleteCharge][data-cid={newid}]'); page.wait_for_timeout(400)
+    page.click(f'#histList [data-action=deleteCharge][data-cid="{newid}"]'); page.wait_for_timeout(400)
     check('delete latest charge reverts tank date', store['tanks']['T1']['lastChargeDate'] == '2026-11-01' and newid not in store['charges'], store['tanks']['T1'])
 
     # ── tank edit: only location changed
@@ -272,7 +274,7 @@ with sync_playwright() as p:
     check('불합격 -> inspFailed, sending cleared', t2.get('inspFailed') is True and t2.get('sendingInsp') is False and t2['lastInspDate'] == '2026-11-18', t2)
     page.screenshot(path=f'{SHOTS}/09_detail_failed.png', full_page=True)
     page.keyboard.press('Escape'); page.wait_for_timeout(200)
-    page.click('nav [data-page=scan]'); page.fill('#manualId', 'SCU-002'); page.keyboard.press('Enter'); page.wait_for_timeout(200)
+    page.click('header [data-page=scan]'); page.fill('#manualId', 'SCU-002'); page.keyboard.press('Enter'); page.wait_for_timeout(200)
     check('failed tank cannot be charged', page.locator('#chargeForm.hidden').count() == 1 and '충전할 수 없습니다' in page.inner_text('#scanResult'))
 
     # ── 401 → refresh → retry
@@ -332,7 +334,7 @@ with sync_playwright() as p:
     # ── offline save blocked
     ctx.set_offline(True); page.wait_for_timeout(200)
     check('offline banner shown', page.locator('#offlineBanner:not(.hidden)').count() == 1)
-    page.click('nav [data-page=scan]'); page.fill('#manualId', 'MED-01'); page.keyboard.press('Enter')
+    page.click('header [data-page=scan]'); page.fill('#manualId', 'MED-01'); page.keyboard.press('Enter')
     page.select_option('#cUsage', '장비점검'); page.fill('#cCharger', 'x'); page.click('#saveChargeBtn'); page.wait_for_timeout(300)
     check('offline save blocked with message', '오프라인' in toast(), toast())
     page.screenshot(path=f'{SHOTS}/14_offline.png')
@@ -368,7 +370,7 @@ with sync_playwright() as p:
     check('password changed', state['pw'] == 'newpass99')
 
     # desktop screenshot
-    page.set_viewport_size({'width': 1280, 'height': 900}); page.click('nav [data-page=dashboard]'); page.wait_for_timeout(200)
+    page.set_viewport_size({'width': 1280, 'height': 900}); page.click('header [data-page=dashboard]'); page.wait_for_timeout(200)
     page.screenshot(path=f'{SHOTS}/15_desktop.png')
 
     check('no XSS alert fired', not alerts, alerts)

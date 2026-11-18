@@ -50,12 +50,12 @@ svg.ic.sm{width:18px;height:18px}
 /* ── 앱 레이아웃 ── */
 .app{max-width:680px;margin:0 auto;min-height:100vh;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 16px)}
 header.top{
-  position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;
-  padding:10px 14px;background:rgba(10,20,36,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:7px;
+  padding:8px 10px;background:rgba(10,20,36,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   border-bottom:1px solid var(--line);
 }
 header.top::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
-.top-logo{height:34px;width:auto;filter:drop-shadow(0 0 6px rgba(212,178,90,.35))}
+.top-logo{height:28px;width:auto;filter:drop-shadow(0 0 6px rgba(212,178,90,.35))}
 .top-title{flex:1;min-width:0}
 .top-title small{display:block;font-size:10px;letter-spacing:2px;color:var(--gold);font-weight:700}
 .top-title strong{display:block;font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -65,6 +65,12 @@ header.top::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height
 @keyframes blink{50%{opacity:.3}}
 .icon-btn{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--sub);border:1px solid var(--line);background:var(--surface)}
 .icon-btn:active{transform:scale(.95)}
+.top-title small{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sync-mini{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);font-weight:600;padding:2px 0;min-height:20px}
+.sync-mini .dot{width:7px;height:7px}
+.hbtn{width:48px;height:48px;flex-direction:column;gap:1px;font-size:10px;font-weight:800;position:relative;flex-shrink:0}
+.hbtn .ic{width:20px;height:20px}
+.hscan{color:var(--gold2);border-color:rgba(212,178,90,.5);background:var(--gold-bg)}
 .icon-btn.active{color:#0a1424;background:var(--gold);border-color:var(--gold2)}
 
 .offline-banner{margin:10px 14px 0;padding:9px 12px;border-radius:10px;background:var(--danger-bg);border:1px solid rgba(255,93,93,.35);color:#ffb3b3;font-size:13px;display:flex;gap:8px;align-items:center}
@@ -78,8 +84,9 @@ nav.bottom .inner{display:flex;width:100%;max-width:680px}
 .nav-btn{flex:1;height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--dim);font-size:12px;font-weight:700;position:relative}
 .nav-btn.active{color:var(--gold2)}
 .nav-btn.active::before{content:'';position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
-.nav-btn .badge-dot{position:absolute;top:10px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:var(--danger);border:2px solid var(--bg2);display:none}
-.nav-btn .badge-dot.show{display:block}
+.badge-dot{position:absolute;top:10px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:var(--danger);border:2px solid var(--bg2);display:none}
+.badge-dot.show{display:block}
+.hbtn .badge-dot{top:4px;right:5px}
 .nav-btn.scan .ic{width:26px;height:26px}
 
 .page{display:none;padding:14px}
@@ -363,9 +370,13 @@ select.input option{background:var(--surface2)}
 <div class="app" id="app">
   <header class="top">
     <img class="top-logo" data-logo src="data:," alt="">
-    <div class="top-title"><small>KOREA COAST GUARD</small><strong id="topUnit">공기통 관리시스템</strong></div>
-    <button class="sync-pill" data-action="syncNow" aria-label="지금 동기화"><span class="dot" id="connDot"></span><span id="connText">연결중</span></button>
-    <button class="icon-btn" id="gearBtn" data-action="page" data-page="settings" aria-label="설정 열기/닫기" aria-pressed="false"><svg class="ic"><use href="#i-gear"/></svg></button>
+    <div class="top-title">
+      <button class="sync-mini" data-action="syncNow" aria-label="지금 동기화"><span class="dot" id="connDot"></span><span id="connText">연결중</span></button>
+      <strong id="topUnit">공기통 관리시스템</strong>
+    </div>
+    <button class="icon-btn hbtn active" data-action="page" data-page="dashboard" aria-label="현황"><svg class="ic"><use href="#i-home"/></svg><span>현황</span><i class="badge-dot" id="bd-dashboard"></i></button>
+    <button class="icon-btn hbtn hscan" data-action="page" data-page="scan" aria-label="스캔·충전"><svg class="ic"><use href="#i-scan"/></svg><span>스캔</span></button>
+    <button class="icon-btn hbtn" id="gearBtn" data-action="page" data-page="settings" aria-label="설정 열기/닫기" aria-pressed="false"><svg class="ic"><use href="#i-gear"/></svg><span>설정</span></button>
   </header>
   <div class="offline-banner hidden" id="offlineBanner"><svg class="ic sm"><use href="#i-alert"/></svg><span id="offlineText">오프라인 — 저장된 데이터를 표시 중입니다.</span></div>
 
@@ -499,11 +510,9 @@ select.input option{background:var(--surface2)}
 </div>
 
 <nav class="bottom" aria-label="주 메뉴"><div class="inner">
-  <button class="nav-btn active" data-action="page" data-page="dashboard"><svg class="ic"><use href="#i-home"/></svg>현황<i class="badge-dot" id="bd-dashboard"></i></button>
   <button class="nav-btn" data-action="page" data-page="tanks"><svg class="ic"><use href="#i-tank"/></svg>용기<i class="badge-dot" id="bd-tanks"></i></button>
-  <button class="nav-btn scan" data-action="page" data-page="scan"><svg class="ic"><use href="#i-scan"/></svg>충전</button>
-  <button class="nav-btn" data-action="page" data-page="schedule"><svg class="ic"><use href="#i-cal"/></svg>일정<i class="badge-dot" id="bd-schedule"></i></button>
-  <button class="nav-btn" data-action="page" data-page="history"><svg class="ic"><use href="#i-list"/></svg>이력</button>
+  <button class="nav-btn" data-action="page" data-page="schedule"><svg class="ic"><use href="#i-cal"/></svg>점검이력<i class="badge-dot" id="bd-schedule"></i></button>
+  <button class="nav-btn" data-action="page" data-page="history"><svg class="ic"><use href="#i-list"/></svg>충전이력</button>
 </div></nav>
 
 <!-- ══ 탱크 상세 ══ -->
@@ -1028,7 +1037,7 @@ function setConn(state) {
   S.conn = state;
   const dot = $('connDot'), txt = $('connText');
   dot.className = 'dot' + (state === 'online' ? ' online' : state === 'offline' ? ' offline' : '');
-  txt.textContent = state === 'online' ? (S.lastSync ? fmtTime(S.lastSync).split(' ')[1] : '동기화') : state === 'offline' ? '오프라인' : '연결중';
+  txt.textContent = state === 'online' ? (S.lastSync ? '동기화 ' + fmtTime(S.lastSync).split(' ')[1] : '동기화됨') : state === 'offline' ? '오프라인 · 눌러서 재시도' : '연결중…';
   $('offlineBanner').classList.toggle('hidden', state !== 'offline');
   $('offlineText').textContent = S.lastSync ? `오프라인 — ${fmtTime(S.lastSync)} 기준 저장된 데이터입니다. 저장은 연결 후 가능합니다.` : '오프라인 — 연결 후 다시 시도하세요.';
   $('setSync').textContent = S.lastSync ? fmtFull(S.lastSync) : '-';
@@ -1101,8 +1110,8 @@ function showPage(name) {
   if (name === 'settings' && S.page !== 'settings') S.prevPage = S.page;
   S.page = name;
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === name));
-  const gear = $('gearBtn'); gear.classList.toggle('active', name === 'settings'); gear.setAttribute('aria-pressed', String(name === 'settings'));
+  document.querySelectorAll('[data-action="page"][data-page]').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  $('gearBtn').setAttribute('aria-pressed', String(name === 'settings'));
   renderPage(name); window.scrollTo(0, 0);
 }
 const modalStack = []; let ignorePop = 0;
