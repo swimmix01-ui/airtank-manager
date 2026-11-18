@@ -297,6 +297,10 @@ with sync_playwright() as p:
 
     # ── settings (shared config)
     page.click('[data-page=settings]'); page.wait_for_timeout(200)
+    page.click('#gearBtn'); page.wait_for_timeout(200)
+    check('gear toggles settings closed -> back to schedule', page.locator('#page-schedule.active').count() == 1 and page.locator('#gearBtn.active').count() == 0)
+    page.click('#gearBtn'); page.wait_for_timeout(200)
+    check('gear reopens settings', page.locator('#page-settings.active').count() == 1 and page.locator('#gearBtn.active').count() == 1)
     page.screenshot(path=f'{SHOTS}/12_settings.png', full_page=True)
     page.fill('[data-cfg=airValidDays]', '45'); page.wait_for_timeout(1300)
     check('config saved to Firestore', store['config'].get('settings', {}).get('airValidDays') == 45, store['config'])

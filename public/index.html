@@ -65,6 +65,7 @@ header.top::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height
 @keyframes blink{50%{opacity:.3}}
 .icon-btn{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--sub);border:1px solid var(--line);background:var(--surface)}
 .icon-btn:active{transform:scale(.95)}
+.icon-btn.active{color:#0a1424;background:var(--gold);border-color:var(--gold2)}
 
 .offline-banner{margin:10px 14px 0;padding:9px 12px;border-radius:10px;background:var(--danger-bg);border:1px solid rgba(255,93,93,.35);color:#ffb3b3;font-size:13px;display:flex;gap:8px;align-items:center}
 
@@ -364,7 +365,7 @@ select.input option{background:var(--surface2)}
     <img class="top-logo" data-logo src="data:," alt="">
     <div class="top-title"><small>KOREA COAST GUARD</small><strong id="topUnit">공기통 관리시스템</strong></div>
     <button class="sync-pill" data-action="syncNow" aria-label="지금 동기화"><span class="dot" id="connDot"></span><span id="connText">연결중</span></button>
-    <button class="icon-btn" data-action="page" data-page="settings" aria-label="설정"><svg class="ic"><use href="#i-gear"/></svg></button>
+    <button class="icon-btn" id="gearBtn" data-action="page" data-page="settings" aria-label="설정 열기/닫기" aria-pressed="false"><svg class="ic"><use href="#i-gear"/></svg></button>
   </header>
   <div class="offline-banner hidden" id="offlineBanner"><svg class="ic sm"><use href="#i-alert"/></svg><span id="offlineText">오프라인 — 저장된 데이터를 표시 중입니다.</span></div>
 
@@ -1098,9 +1099,11 @@ const stamp = () => ({ updatedAt: new Date().toISOString(), updatedBy: (Auth.dat
 /* ══════════ 화면 전환 / 모달 ══════════ */
 function showPage(name) {
   if (S.page === 'scan' && name !== 'scan') Scan.stop();
+  if (name === 'settings' && S.page !== 'settings') S.prevPage = S.page;
   S.page = name;
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  const gear = $('gearBtn'); gear.classList.toggle('active', name === 'settings'); gear.setAttribute('aria-pressed', String(name === 'settings'));
   renderPage(name); window.scrollTo(0, 0);
 }
 const modalStack = []; let ignorePop = 0;
@@ -1939,7 +1942,7 @@ async function savePw(btn) {
 
 /* ══════════ 이벤트 ══════════ */
 const ACTIONS = {
-  page: el => showPage(el.dataset.page),
+  page: el => showPage(el.dataset.page === 'settings' && S.page === 'settings' ? (S.prevPage || 'dashboard') : el.dataset.page),
   tank: el => openDetail(el.dataset.key),
   catList: el => openCatList(el.dataset.cat),
   chip: el => { F[el.dataset.scope][el.dataset.key] = el.dataset.val; renderPage(S.page); },
