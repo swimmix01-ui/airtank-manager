@@ -169,8 +169,8 @@ with sync_playwright() as p:
     page.screenshot(path=f'{SHOTS}/02_expire_popup.png')
     page.click('#mList [data-action=close] >> nth=0'); page.wait_for_timeout(200)
     check('pagination loaded all 7 tanks', page.locator('.stat .val').first.inner_text() == '7', page.locator('.stat .val').first.inner_text())
-    check('bottom nav = 용기/점검이력/충전이력', page.locator('nav.bottom .nav-btn').all_inner_texts() == ['용기', '점검이력', '충전이력'], page.locator('nav.bottom .nav-btn').all_inner_texts())
-    check('header has 현황/스캔/설정', page.locator('header .hbtn').count() == 3)
+    check('bottom nav = 현황/용기/점검이력/충전이력', page.locator('nav.bottom .nav-btn').all_inner_texts() == ['현황', '용기', '점검이력', '충전이력'], page.locator('nav.bottom .nav-btn').all_inner_texts())
+    check('header has 스캔/설정', page.locator('header .hbtn').all_inner_texts() == ['스캔', '설정'], page.locator('header .hbtn').all_inner_texts())
     check('date is local (KST)', '2026년 11월 18일' in page.inner_text('#heroDate'), page.inner_text('#heroDate'))
     check('monthly chart rendered', page.locator('#chartMonthly .bar').count() == 6)
     check('donut rendered', page.locator('#chartDonut circle').count() >= 2)
@@ -370,7 +370,7 @@ with sync_playwright() as p:
     check('password changed', state['pw'] == 'newpass99')
 
     # desktop screenshot
-    page.set_viewport_size({'width': 1280, 'height': 900}); page.click('header [data-page=dashboard]'); page.wait_for_timeout(200)
+    page.set_viewport_size({'width': 1280, 'height': 900}); page.click('nav [data-page=dashboard]'); page.wait_for_timeout(200)
     page.screenshot(path=f'{SHOTS}/15_desktop.png')
 
     check('no XSS alert fired', not alerts, alerts)
