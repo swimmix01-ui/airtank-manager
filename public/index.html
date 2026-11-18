@@ -10,7 +10,7 @@
 <title>해양경찰 공기통 관리시스템</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" id="favicon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -2108,7 +2108,7 @@ $('setCharger').addEventListener('input', e => { const d = Local.get('dev', {});
 
 /* ══════════ 시작 ══════════ */
 (function init() {
-  document.querySelectorAll('[data-logo]').forEach(e => { e.src = LOGO; }); $('favicon').href = LOGO;
+  document.querySelectorAll('[data-logo]').forEach(e => { e.src = LOGO; });
   document.querySelectorAll('.appver').forEach(e => { e.textContent = CONFIG.version; });
   document.querySelectorAll('[data-locations]').forEach(sel => fillSelect(sel, [...(sel.dataset.empty ? [['', sel.dataset.empty]] : []), ...LOCATIONS.map(l => [l, l])]));
   if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => { /* sw.js 미배포 시 무시 */ });
