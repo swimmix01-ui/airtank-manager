@@ -80,21 +80,15 @@ nav.bottom{
   background:rgba(13,26,47,.97);border-top:1px solid var(--line);padding-bottom:var(--safe-b);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
-nav.bottom .inner{display:flex;width:100%;max-width:680px;gap:6px;padding:6px 8px}
+nav.bottom .inner{display:flex;width:100%;max-width:680px}
 .nav-group{flex:var(--n,1);display:flex;flex-direction:column;min-width:0}
 .ng-label{height:14px;line-height:14px;font-size:10px;font-weight:800;letter-spacing:3px;text-align:center;color:var(--dim)}
 .ng-row{flex:1;display:flex;border-radius:12px;border:1px solid transparent}
-.nav-group.manage .ng-label{color:var(--gold)}
-.nav-group.manage .ng-row{background:var(--gold-bg);border-color:rgba(212,178,90,.25)}
-.nav-group.record .ng-label{color:#8cc8ff}
-.nav-group.record .ng-row{background:var(--info-bg);border-color:rgba(92,184,255,.3)}
-.nav-group.record .ng-row .nav-btn + .nav-btn{border-left:1px dashed rgba(92,184,255,.25)}
-.nav-group.record .nav-btn.active{color:#bfe3ff}
-.nav-group.record .nav-btn.active::before{background:var(--info)}
-.nav-btn{flex:1;min-width:0;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--dim);font-size:12px;font-weight:700;position:relative}
+
+.nav-btn{flex:1;min-width:0;height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--dim);font-size:12px;font-weight:700;position:relative}
 .nav-btn.active{color:var(--gold2)}
-.nav-btn.active::before{content:'';position:absolute;top:-1px;left:24%;right:24%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
-.badge-dot{position:absolute;top:6px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:var(--danger);border:2px solid var(--bg2);display:none}
+.nav-btn.active::before{content:'';position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+.badge-dot{position:absolute;top:10px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:var(--danger);border:2px solid var(--bg2);display:none}
 .badge-dot.show{display:block}
 .hbtn .badge-dot{top:4px;right:5px}
 .nav-btn.scan .ic{width:26px;height:26px}
@@ -242,11 +236,18 @@ select.input option{background:var(--surface2)}
 .ybars{height:140px}
 button.bar{background:none;border:none;padding:0;cursor:pointer;border-radius:8px}
 button.bar:active{transform:scale(.96)}
-.ybars .bar i{background:linear-gradient(180deg,#d2b4ff,#6e4bb8)}
-.ybars .bar.cur i{background:linear-gradient(180deg,#efe2ff,var(--purple))}
-.ybars .bar.over i{background:linear-gradient(180deg,#ff9b9b,#c0392b)}
-.ybars .bar b{color:var(--text);font-size:14px}
-.ybars .bar.over b{color:#ff9090}
+.ybars .bar b{display:flex;flex-direction:column;align-items:center;line-height:1.1;font-size:14px}
+.ybars .bar .n-todo{color:#d2b4ff}
+.ybars .bar.cur .n-todo{color:#efe2ff}
+.ybars .bar.over .n-todo{color:#ff9090}
+.ybars .bar .n-done{color:#6fe3a2;font-size:11px}
+.ybars .stack{display:flex;flex-direction:column;justify-content:flex-end;width:100%;max-width:38px;border-radius:6px 6px 2px 2px;overflow:hidden;gap:2px}
+.ybars .stack i{display:block;width:100%;max-width:none;border-radius:0;min-height:3px;transition:height .5s}
+.ybars .stack i.todo{background:linear-gradient(180deg,#d2b4ff,#6e4bb8)}
+.ybars .bar.cur .stack i.todo{background:linear-gradient(180deg,#efe2ff,var(--purple))}
+.ybars .bar.over .stack i.todo{background:linear-gradient(180deg,#ff9b9b,#c0392b)}
+.ybars .stack i.done{background:linear-gradient(180deg,#7ee8ab,#1f8f52)}
+.ybars .stack i.none{height:3px;background:rgba(255,255,255,.12)}
 .cal-n{font-style:normal;font-family:var(--mono);font-size:10px;font-weight:700;line-height:1;min-width:14px;height:14px;padding:0 3px;border-radius:7px;background:var(--gold);color:#0a1424;display:inline-flex;align-items:center;justify-content:center}
 .cal-dots{align-items:center;height:14px}
 .donut-row{display:flex;align-items:center;gap:18px}
@@ -1285,26 +1286,47 @@ function inspBuckets() {
   });
   return { buckets, later, unknown };
 }
+function inspDoneByYear(year) {
+  const seen = new Set(), out = [];
+  S.insps.forEach(x => { if (String(x.date || '').startsWith(year) && !seen.has(x.tankId)) { seen.add(x.tankId); out.push(x); } });
+  return out;
+}
 function renderInspBars() {
   const { buckets, later, unknown } = inspBuckets(), y0 = String(today().getFullYear());
-  const mx = Math.max(1, ...buckets.map(b => b.list.length));
-  setHTML('inspBars', html`<div class="small muted" style="font-weight:700">압력 재검사 도래 현황 (5년)</div>
-    <div class="bars ybars">${buckets.map(b => html`<button class="bar ${b.key === 'over' ? 'over' : b.key === y0 ? 'cur' : ''}" data-action="inspBar" data-key="${b.key}" aria-label="${b.label} ${b.list.length}개">
-      <b>${b.list.length}</b><i style="height:${Math.max(3, Math.round(b.list.length / mx * 84))}px"></i><span>${b.key === 'over' ? '초과' : b.label + '년'}</span></button>`)}</div>
-    <div class="tiny dim" style="display:flex;gap:14px;margin-top:10px;flex-wrap:wrap">
-      <span>막대를 누르면 해당 탱크 목록</span>
+  buckets.forEach(b => { b.done = b.key === 'over' ? [] : inspDoneByYear(b.key); });
+  const mx = Math.max(1, ...buckets.map(b => b.list.length + b.done.length));
+  const cur = buckets.find(b => b.key === y0), overN = buckets[0].list.length, total = cur.list.length + cur.done.length + overN;
+  const pct = total ? Math.round(cur.done.length / total * 100) : 0;
+  setHTML('inspBars', html`<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+      <div class="small muted" style="font-weight:700">압력 재검사 현황 (5년)</div>
+      <div class="tiny" style="color:var(--sub)">${y0}년 처리 <b style="color:var(--ok)">${cur.done.length}</b> / ${total} (${pct}%)${overN ? raw(' <span class="dim">· 초과 포함</span>') : ''}</div></div>
+    <div class="bars ybars">${buckets.map(b => {
+      const hTodo = Math.round(b.list.length / mx * 84), hDone = Math.round(b.done.length / mx * 84);
+      return html`<button class="bar ${b.key === 'over' ? 'over' : b.key === y0 ? 'cur' : ''}" data-action="inspBar" data-key="${b.key}" aria-label="${b.label} 검사할 것 ${b.list.length}개, 검사 완료 ${b.done.length}개">
+        <b><span class="n-todo">${b.list.length}</span>${b.done.length ? html`<span class="n-done">✓${b.done.length}</span>` : ''}</b>
+        <span class="stack">${b.list.length ? html`<i class="todo" style="height:${Math.max(3, hTodo)}px"></i>` : ''}${b.done.length ? html`<i class="done" style="height:${Math.max(3, hDone)}px"></i>` : ''}${!b.list.length && !b.done.length ? html`<i class="none"></i>` : ''}</span>
+        <span>${b.key === 'over' ? '초과' : b.label + '년'}</span></button>`;
+    })}</div>
+    <div class="cal-legend" style="flex-wrap:wrap"><span><i style="background:var(--purple);border-radius:2px"></i>검사할 것</span><span><i style="background:var(--ok);border-radius:2px"></i>검사 완료</span><span><i style="background:var(--danger);border-radius:2px"></i>기한 초과·불합격</span></div>
+    ${unknown.length || later.length ? html`<div class="tiny dim" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
       ${unknown.length ? html`<button class="mini" data-action="inspBar" data-key="unknown">검사정보 없음 ${unknown.length}</button>` : ''}
-      ${later.length ? html`<button class="mini" data-action="inspBar" data-key="later">${+y0 + 5}년 이후 ${later.length}</button>` : ''}
-    </div>`);
+      ${later.length ? html`<button class="mini" data-action="inspBar" data-key="later">${+y0 + 5}년 이후 ${later.length}</button>` : ''}</div>` : ''}`);
 }
 function openInspBar(key) {
   const { buckets, later, unknown } = inspBuckets();
   const list = key === 'unknown' ? unknown : key === 'later' ? later : (buckets.find(b => b.key === key) || { list: [] }).list;
-  if (!list.length) return toast('해당하는 탱크가 없습니다.');
-  const title = key === 'over' ? '⛔ 압력검사 기한 초과·불합격' : key === 'unknown' ? '검사정보 없음' : key === 'later' ? '5년 이후 도래' : `🔬 ${key}년 압력검사 도래`;
+  const done = /^\d{4}$/.test(key) ? inspDoneByYear(key) : [];
+  if (!list.length && !done.length) return toast('해당하는 탱크가 없습니다.');
+  const title = key === 'over' ? '⛔ 압력검사 기한 초과·불합격' : key === 'unknown' ? '검사정보 없음' : key === 'later' ? '5년 이후 도래' : `🔬 ${key}년 압력 재검사`;
   const sorted = [...list].sort((a, b) => ((insp(a).next || 0) - (insp(b).next || 0)));
   const groups = {}; sorted.forEach(t => { const n = insp(t).next; const g = t.inspFailed ? '불합격 (재검사·폐기 필요)' : n ? `${n.getFullYear()}년 ${n.getMonth() + 1}월` : '제조연월·검사일 입력 필요'; (groups[g] = groups[g] || []).push(t); });
-  openList(title, `총 ${list.length}개`, html`${Object.entries(groups).map(([g, arr]) => html`<div class="tiny dim" style="margin:10px 0 4px;font-weight:800">${g} · ${arr.length}개</div>${arr.map(inspItem)}`)}`);
+  const sub = /^\d{4}$/.test(key) ? `검사할 것 ${list.length}개 · 검사 완료 ${done.length}개` : `총 ${list.length}개`;
+  openList(title, sub, html`
+    ${list.length ? html`<div class="small" style="color:${raw(key === 'over' ? 'var(--danger)' : 'var(--purple)')};font-weight:800;margin:2px 0 2px">🔬 검사할 것 (${list.length})</div>${Object.entries(groups).map(([g, arr]) => html`<div class="tiny dim" style="margin:10px 0 4px;font-weight:800">${g} · ${arr.length}개</div>${arr.map(inspItem)}`)}` : ''}
+    ${done.length ? html`<div class="small" style="color:var(--ok);font-weight:800;margin:14px 0 6px">✅ 검사 완료 (${done.length})</div>${[...done].sort((a, b) => String(a.date).localeCompare(String(b.date))).map(x => {
+      const t = findTankById(x.tankId);
+      return html`<button class="item" ${t ? raw(`data-action="tank" data-key="${esc(t._id)}"`) : ''}><div class="item-main"><div class="item-title">${x.tankId}</div><div class="item-sub">${x.date} · ${x.org || '기관 미기재'}${t ? ' · 다음 ' + (insp(t).next ? localDate(insp(t).next) : '-') : ''}</div></div><span class="tag ${x.result === '합격' ? 't-ok' : x.result === '불합격' ? 't-danger' : 't-warn'}">${x.result || '-'}</span></button>`;
+    })}` : ''}`);
 }
 function inspItem(t) {
   const i = insp(t);
