@@ -26,7 +26,7 @@
   --danger:#ff5d5d; --danger-bg:rgba(255,93,93,.14);
   --purple:#b98bff; --purple-bg:rgba(185,139,255,.15);
   --info:#5cb8ff; --info-bg:rgba(92,184,255,.14);
-  --radius:14px; --nav-h:76px;
+  --radius:14px; --nav-h:64px;
   --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
   --safe-b:env(safe-area-inset-bottom,0px);
 }
@@ -80,7 +80,7 @@ nav.bottom{
   background:rgba(13,26,47,.97);border-top:1px solid var(--line);padding-bottom:var(--safe-b);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
-nav.bottom .inner{display:flex;width:100%;max-width:680px;gap:6px;padding:4px 8px 6px}
+nav.bottom .inner{display:flex;width:100%;max-width:680px;gap:6px;padding:6px 8px}
 .nav-group{flex:var(--n,1);display:flex;flex-direction:column;min-width:0}
 .ng-label{height:14px;line-height:14px;font-size:10px;font-weight:800;letter-spacing:3px;text-align:center;color:var(--dim)}
 .ng-row{flex:1;display:flex;border-radius:12px;border:1px solid transparent}
@@ -519,13 +519,13 @@ select.input option{background:var(--surface2)}
 </div>
 
 <nav class="bottom" aria-label="주 메뉴"><div class="inner">
-  <div class="nav-group overview" style="--n:1"><span class="ng-label">종합</span><div class="ng-row">
+  <div class="nav-group overview" style="--n:1"><div class="ng-row">
     <button class="nav-btn active" data-action="page" data-page="dashboard"><svg class="ic"><use href="#i-home"/></svg>현황<i class="badge-dot" id="bd-dashboard"></i></button>
   </div></div>
-  <div class="nav-group manage" style="--n:1"><span class="ng-label">관리</span><div class="ng-row">
+  <div class="nav-group manage" style="--n:1"><div class="ng-row">
     <button class="nav-btn" data-action="page" data-page="tanks"><svg class="ic"><use href="#i-tank"/></svg>용기<i class="badge-dot" id="bd-tanks"></i></button>
   </div></div>
-  <div class="nav-group record" style="--n:2" role="group" aria-label="기록"><span class="ng-label">기록</span><div class="ng-row">
+  <div class="nav-group record" style="--n:2" role="group" aria-label="기록"><div class="ng-row">
     <button class="nav-btn" data-action="page" data-page="schedule"><svg class="ic"><use href="#i-cal"/></svg>점검이력<i class="badge-dot" id="bd-schedule"></i></button>
     <button class="nav-btn" data-action="page" data-page="history"><svg class="ic"><use href="#i-list"/></svg>충전이력</button>
   </div></div>
