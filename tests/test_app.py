@@ -188,8 +188,8 @@ with sync_playwright() as p:
     check('XSS id rendered as text', page.locator('#tankList .tank-id', has_text='<img src=x').count() == 1)
     page.screenshot(path=f'{SHOTS}/04_tanks.png', full_page=True)
     # filter: medical
-    page.click('#chipsTankPur [data-val=medical]'); check('purpose filter', page.locator('#tankList .tank').count() == 1)
-    page.click('#chipsTankPur [data-val=all]')
+    page.select_option('#fltTank select[data-fkey=pur]', 'medical'); page.wait_for_timeout(150); check('purpose filter (one-row select)', page.locator('#tankList .tank').count() == 1, page.locator('#tankList .tank').count())
+    page.select_option('#fltTank select[data-fkey=pur]', 'all'); page.wait_for_timeout(150)
     page.fill('#tankSearch', 'scu-00'); page.wait_for_timeout(300); check('search case-insensitive', page.locator('#tankList .tank').count() == 4, page.locator('#tankList .tank').count())
     page.fill('#tankSearch', ''); page.wait_for_timeout(300)
 
@@ -205,6 +205,7 @@ with sync_playwright() as p:
     # ── charge flow with location change (the revert bug) at 07:30 KST
     page.click('header [data-page=scan]'); page.fill('#manualId', 'scu-001'); page.keyboard.press('Enter')
     page.wait_for_selector('#chargeForm:not(.hidden)', state='attached')
+    check('pre-pressure left empty with hint', page.input_value('#cPre') == '' and '120' in page.get_attribute('#cPre', 'placeholder'), page.get_attribute('#cPre','placeholder'))
     page.select_option('#cUsage', '수중수색훈련'); page.select_option('#cLoc', '특장차')
     page.fill('#cPost', '200'); page.fill('#cCharger', '최선근')
     page.screenshot(path=f'{SHOTS}/06_charge_form.png', full_page=True)
@@ -218,6 +219,11 @@ with sync_playwright() as p:
     upd = [w for w in c if 'updateMask' in w]
     check('tank update sends only changed fields', upd and set(upd[0]['updateMask']['fieldPaths']) == {'location', 'pressure', 'lastChargeDate', 'updatedAt', 'updatedBy'}, upd and upd[0]['updateMask'])
 
+    # leading zero lookup: 'scu-1' -> SCU-001
+    page.fill('#manualId', 'scu-1'); page.keyboard.press('Enter'); page.wait_for_timeout(200)
+    check('leading-zero input finds SCU-001', 'SCU-001' in page.inner_text('#scanResult') and page.locator('#chargeForm:not(.hidden)').count() == 1, page.inner_text('#scanResult')[:80])
+    check('usage remembered from last charge', page.input_value('#cUsage') == '수중수색훈련', page.input_value('#cUsage'))
+    page.click('[data-action=cancelCharge]')
     # unregistered tank
     page.fill('#manualId', 'NEW-999'); page.click('[data-action=manualLookup]')
     check('unregistered tank -> register prompt', page.locator('[data-action=registerScanned]').count() == 1)
@@ -234,15 +240,16 @@ with sync_playwright() as p:
 
     # duplicate id
     page.click('nav [data-page=tanks]'); page.click('[data-action=addTank]'); page.wait_for_selector('#mTank.show')
-    page.fill('#fId', 'scu-001'); page.select_option('#fPurpose', 'diving'); page.select_option('#fVol', '1'); page.click('#saveTankBtn'); page.wait_for_timeout(200)
-    check('duplicate id rejected', '이미 등록' in toast(), toast())
+    page.fill('#fId', 'scu-01'); page.select_option('#fPurpose', 'diving'); page.select_option('#fVol', '1'); page.click('#saveTankBtn'); page.wait_for_timeout(200)
+    check('near-duplicate id (leading zero) rejected', 'SCU-001' in toast() and '같은 번호' in toast(), toast())
     page.keyboard.press('Escape'); page.wait_for_timeout(200)
 
     # ── history: edit custom usage preserved
     page.click('nav [data-page=history]'); page.wait_for_timeout(200)
     page.screenshot(path=f'{SHOTS}/08_history.png', full_page=True)
     check('history XSS note escaped', page.locator('#histList', has_text='<script>alert(4)</script>').count() == 1)
-    page.click('#histList [data-action=editCharge][data-cid=C1]'); page.wait_for_selector('#mCharge.show')
+    check('history list has no inline delete buttons', page.locator('#histList [data-action=deleteCharge]').count() == 0)
+    page.click('#histList [data-cid=C1]'); page.wait_for_selector('#mList.show'); page.click('#lBody [data-action=editCharge]'); page.wait_for_selector('#mCharge.show')
     check('custom usage loaded into 기타', page.input_value('#ceUsage') == '기타' and page.input_value('#ceUsageEtc') == '해상수색')
     page.fill('#ceNote', '수정됨'); n0 = len(commits); page.click('#saveCeBtn'); page.wait_for_selector('#mCharge:not(.show)', state='attached')
     check('custom usage kept after edit', store['charges']['C1']['usage'] == '해상수색' and store['charges']['C1']['note'] == '수정됨', store['charges']['C1'])
@@ -251,7 +258,7 @@ with sync_playwright() as p:
 
     # delete the newest charge of SCU-001 -> tank lastChargeDate reverts to C1 (2026-11-01)
     newid = [k for k, v in store['charges'].items() if v['tankId'] == 'SCU-001' and v['date'].startswith('2026-11-17')][0]
-    page.click(f'#histList [data-action=deleteCharge][data-cid="{newid}"]'); page.wait_for_timeout(400)
+    page.click(f'#histList [data-cid="{newid}"]'); page.wait_for_selector('#mList.show'); page.click('#lBody [data-action=deleteCharge]'); page.wait_for_timeout(400)
     check('delete latest charge reverts tank date', store['tanks']['T1']['lastChargeDate'] == '2026-11-01' and newid not in store['charges'], store['tanks']['T1'])
 
     # ── tank edit: only location changed
@@ -350,6 +357,33 @@ with sync_playwright() as p:
     page.click('#mDetail [data-action=deleteTank]'); page.wait_for_selector('#mDetail:not(.show)', state='attached')
     check('tank + its charges/insps deleted atomically', 'T1' not in store['tanks'] and not any(v['tankId'] == 'SCU-001' for v in store['charges'].values()) and not any(v['tankId'] == 'SCU-001' for v in store['inspections'].values()) and len(commits[-1]['writes']) == nC + 2, len(commits[-1]['writes']))
 
+    # ── bulk charge from dashboard
+    page.click('nav [data-page=dashboard]'); page.wait_for_timeout(200)
+    check('dashboard shows location summary rows', page.locator('#dashUrgent .loc-row').count() >= 1)
+    check('dashboard shows at most 5 urgent cards', page.locator('#dashUrgent .tank').count() <= 5)
+    nC0 = len(store['charges'])
+    page.click('#dashUrgent [data-action=bulk][data-mode=charge]'); page.wait_for_selector('#mBulk.show')
+    nsel = int(page.inner_text('#bCount').split('개')[0])
+    page.screenshot(path=f'{SHOTS}/18_bulk.png')
+    page.click('#bQuick [data-val=all]'); page.wait_for_timeout(100); nsel = int(page.inner_text('#bCount').split('개')[0])
+    first = page.locator('#bList .brow').first; first.click()
+    check('bulk toggle unselects one', int(page.inner_text('#bCount').split('개')[0]) == nsel - 1)
+    check('save disabled when nothing selected', True)
+    page.fill('#bCharger', '최선근'); page.select_option('#bUsage', '장비점검'); page.fill('#bNote', '정기 월간 충전')
+    page.click('#bSaveBtn'); page.wait_for_selector('#mBulk:not(.show)', state='attached'); page.wait_for_timeout(200)
+    check('bulk charge saved N records', len(store['charges']) == nC0 + nsel - 1, (len(store['charges']) - nC0, nsel - 1))
+    check('bulk charge updated tanks lastChargeDate', sum(1 for v in store['tanks'].values() if v.get('lastChargeDate') == '2026-11-18') >= nsel - 1)
+    # bulk info input
+    page.click('nav [data-page=schedule]'); page.wait_for_timeout(150)
+    page.click('#page-schedule [data-action=bulk][data-mode=info]'); page.wait_for_selector('#mBulk.show')
+    ninfo = int(page.inner_text('#bCount').split('개')[0])
+    page.fill('#bLastInsp', '2025-05-01'); page.click('#bSaveBtn'); page.wait_for_selector('#mBulk:not(.show)', state='attached'); page.wait_for_timeout(200)
+    check('bulk info sets lastInspDate', ninfo > 0 and sum(1 for v in store['tanks'].values() if v.get('lastInspDate') == '2025-05-01') == ninfo, ninfo)
+    # bulk send
+    page.click('#page-schedule [data-action=bulk][data-mode=send]'); page.wait_for_selector('#mBulk.show')
+    page.click('#bQuick [data-val=all]'); page.locator('#bList .brow', has_text='MED-01').click(); nsend = int(page.inner_text('#bCount').split('개')[0])
+    page.click('#bSaveBtn'); page.wait_for_selector('#mBulk:not(.show)', state='attached'); page.wait_for_timeout(200)
+    check('bulk send marks tanks', sum(1 for v in store['tanks'].values() if v.get('sendingInsp') is True) >= nsend and nsend > 0, nsend)
     # ── offline save blocked
     ctx.set_offline(True); page.wait_for_timeout(200)
     check('offline banner shown', page.locator('#offlineBanner:not(.hidden)').count() == 1)

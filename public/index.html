@@ -69,7 +69,7 @@ header.top::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height
 .icon-btn{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--sub);border:1px solid var(--line);background:var(--surface)}
 .icon-btn:active{transform:scale(.95)}
 .top-title small{display:flex;align-items:center;gap:6px;white-space:nowrap}
-.sync-mini{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);font-weight:600;padding:2px 0;min-height:20px}
+.sync-mini{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);font-weight:600;padding:8px 10px 8px 0;margin:-8px 0;min-height:36px}
 .sync-mini .dot{width:7px;height:7px}
 .hbtn{width:48px;height:48px;flex-direction:column;gap:1px;font-size:10px;font-weight:800;position:relative;flex-shrink:0}
 .hbtn .ic{width:20px;height:20px}
@@ -307,7 +307,7 @@ button.bar:active{transform:scale(.96)}
 .sheet-head h2{flex:1;font-size:19px;font-weight:900;word-break:break-all}
 .sheet-head .icon-btn{width:38px;height:38px}
 
-.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + var(--safe-b) + 14px);transform:translate(-50%,20px);z-index:400;max-width:calc(100% - 32px);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:700;background:#143222;border:1px solid rgba(52,209,122,.45);color:#8ff0b8;opacity:0;pointer-events:none;transition:all .25s;box-shadow:0 6px 24px rgba(0,0,0,.45);text-align:center}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translate(-50%,-20px);z-index:400;max-width:calc(100% - 32px);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:700;background:#143222;border:1px solid rgba(52,209,122,.45);color:#8ff0b8;opacity:0;pointer-events:none;transition:all .25s;box-shadow:0 6px 24px rgba(0,0,0,.45);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .toast.err{background:#3a1616;border-color:rgba(255,93,93,.5);color:#ffb0b0}
 
@@ -338,6 +338,33 @@ button.bar:active{transform:scale(.96)}
 .foot{text-align:center;margin-top:24px;font-size:12px;color:var(--dim)}
 .foot b{color:var(--gold);letter-spacing:1px}
 
+/* v5.3 */
+.dash-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:2px 2px 0}
+.dash-head b{font-size:14px;color:var(--gold2)}
+.dash-head span{font-size:13px;color:var(--sub);font-weight:700}
+.loc-card{padding:4px 12px;margin-top:10px}
+.loc-row{display:flex;align-items:center;gap:8px;width:100%;padding:11px 0;border-bottom:1px solid var(--line);text-align:left;min-height:48px}
+.loc-row:last-child{border-bottom:none}
+.loc-name{font-weight:800;font-size:14px;flex-shrink:0;min-width:84px}
+.loc-tags{flex:1;min-width:0;display:flex;flex-wrap:wrap}
+.loc-tags .tag{margin:1px 3px 1px 0}
+.loc-n{font-family:var(--mono);font-size:18px;color:var(--text)}
+.filter-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:0 0 8px}
+.fsel{min-height:40px;font-size:13px;padding:7px 26px 7px 10px;background-position:calc(100% - 14px) 50%,calc(100% - 9px) 50%}
+details.rule summary{cursor:pointer;font-weight:800;color:var(--text);list-style:none}
+details.rule summary::-webkit-details-marker{display:none}
+details.rule[open] summary .dim{display:none}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}
+.seg button{min-height:42px;border-radius:9px;font-size:13px;font-weight:800;color:var(--sub)}
+.seg button.active{background:var(--gold-bg);color:var(--gold2);box-shadow:inset 0 0 0 1px rgba(212,178,90,.45)}
+.bulk-bar{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 6px}
+.bulk-list{max-height:38vh;max-height:38dvh;overflow-y:auto;border:1px solid var(--line);border-radius:12px;background:var(--bg2)}
+.brow{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;min-height:48px}
+.brow:last-child{border-bottom:none}
+.brow input{width:22px;height:22px;accent-color:var(--gold);flex-shrink:0;pointer-events:none}
+.brow .bid{font-family:var(--mono);font-weight:700;min-width:54px}
+.brow .bsub{flex:1;min-width:0;font-size:12px;color:var(--sub)}
+.brow.on{background:rgba(212,178,90,.07)}
 @media (min-width:560px){
   .stats{grid-template-columns:repeat(6,1fr)}
 }
@@ -407,14 +434,7 @@ button.bar:active{transform:scale(.96)}
 
   <!-- 현황 -->
   <section class="page active" id="page-dashboard">
-    <div class="hero">
-      <div class="hero-ic"><svg class="ic"><use href="#i-tank"/></svg></div>
-      <div style="min-width:0">
-        <div class="hero-date" id="heroDate">-</div>
-        <div class="hero-title" id="heroTitle">공기통 현황</div>
-        <div class="hero-sub" id="heroSub">-</div>
-      </div>
-    </div>
+    <div class="dash-head"><b id="heroDate">-</b><span id="heroSub"></span></div>
     <div class="stats" id="stats"></div>
     <div class="sec-title">🔴 즉시 조치 필요 <span class="count" id="urgentCount"></span></div>
     <div class="list" id="dashUrgent"></div>
@@ -443,6 +463,7 @@ button.bar:active{transform:scale(.96)}
         <input class="input" id="manualId" placeholder="탱크 ID 입력" autocomplete="off" autocapitalize="characters" enterkeyhint="search" aria-label="탱크 ID">
         <button class="btn btn-line" data-action="manualLookup">조회</button>
       </div>
+      <button class="btn btn-ghost" style="margin-top:10px" data-action="bulk" data-mode="charge" data-quick="exp">☑️ 여러 개 한꺼번에 충전 기록</button>
     </div>
     <div class="card result hidden" id="scanResult"></div>
     <div class="card hidden" id="chargeForm">
@@ -469,24 +490,27 @@ button.bar:active{transform:scale(.96)}
   <section class="page" id="page-tanks">
     <div class="search"><svg class="ic sm"><use href="#i-search"/></svg><input id="tankSearch" placeholder="탱크 ID · 위치 · 용량 검색" autocomplete="off"></div>
     <div class="chips" id="chipsTankSt"></div>
-    <div class="chips" id="chipsTankLoc"></div>
-    <div class="chips" id="chipsTankPur"></div>
-    <div class="chips" id="chipsTankSort"></div>
+    <div class="filter-row" id="fltTank"></div>
     <div class="tiny dim" id="tankCount" style="margin:2px 2px 8px"></div>
     <div class="list" id="tankList"></div>
-    <button class="btn btn-gold" style="margin-top:14px" data-action="addTank"><svg class="ic"><use href="#i-plus"/></svg>탱크 등록</button>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn btn-gold" data-action="addTank"><svg class="ic"><use href="#i-plus"/></svg>탱크 등록</button>
+      <button class="btn btn-line" data-action="bulk" data-mode="charge" data-quick="all">☑️ 일괄 처리</button>
+    </div>
   </section>
 
   <!-- 검사이력 (압력 재검사) -->
   <section class="page" id="page-schedule">
     <div class="card" id="inspBars"></div>
-    <div class="notice" id="ruleNotice" style="margin-top:10px"></div>
+    <details class="notice rule" id="ruleNotice" style="margin-top:10px"></details>
     <div class="sec-title">재검사 대상</div>
     <div class="chips" id="chipsSchSt"></div>
-    <div class="chips" id="chipsSchLoc"></div>
-    <div class="chips" id="chipsSchPur"></div>
-    <div class="chips" id="chipsSchSort"></div>
+    <div class="filter-row" id="fltSch"></div>
     <div class="tiny dim" id="schCount" style="margin:2px 2px 8px"></div>
+    <div class="btn-row" style="margin-bottom:10px">
+      <button class="btn btn-orange btn-sm" style="width:100%" data-action="bulk" data-mode="send" data-quick="insp">📦 일괄 검사 발송</button>
+      <button class="btn btn-line btn-sm" style="width:100%" data-action="bulk" data-mode="info" data-quick="noinfo">📝 검사일 일괄 입력</button>
+    </div>
     <div class="list" id="schList"></div>
     <div class="sec-title">검사 기록 <span class="count" id="inspRecCount"></span></div>
     <div id="inspRecList"></div>
@@ -494,6 +518,7 @@ button.bar:active{transform:scale(.96)}
 
   <!-- 충전이력 (공기 충전) -->
   <section class="page" id="page-history">
+    <div id="chargeAlert"></div>
     <div class="card" id="chargeCal"></div>
     <div class="tiny dim" style="margin:8px 2px 0">충전 후 30일 경과 시 배출 후 재충전 (훈령 제269호 제23조 제3항 제1호) · 출동·훈련 사용 후 즉시 충전</div>
     <div class="sec-title">충전 기록</div>
@@ -647,6 +672,23 @@ button.bar:active{transform:scale(.96)}
   <button class="btn btn-gold" data-action="savePw" id="savePwBtn">변경</button>
 </div></div>
 
+<!-- ══ 일괄 처리 ══ -->
+<div class="overlay" id="mBulk"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="bTitle">
+  <div class="grab"></div>
+  <div class="sheet-head"><h2 id="bTitle">☑️ 일괄 처리</h2><button class="icon-btn" data-action="close" aria-label="닫기"><svg class="ic"><use href="#i-close"/></svg></button></div>
+  <div class="seg" id="bModes">
+    <button data-action="bulkMode" data-mode="charge">⚡ 충전 기록</button>
+    <button data-action="bulkMode" data-mode="send">📦 검사 발송</button>
+    <button data-action="bulkMode" data-mode="info">📝 정보 입력</button>
+  </div>
+  <div class="chips" id="bQuick" style="margin-top:10px"></div>
+  <div class="filter-row" style="grid-template-columns:1fr"><select class="input fsel" id="bLoc" aria-label="위치"></select></div>
+  <div class="bulk-bar"><label class="check" style="margin:0"><input type="checkbox" id="bAll"> 전체 선택</label><span id="bCount" class="small" style="color:var(--gold2);font-weight:800">0개 선택</span></div>
+  <div class="bulk-list" id="bList"></div>
+  <div id="bForm" style="margin-top:14px"></div>
+  <button class="btn btn-gold" data-action="bulkSave" id="bSaveBtn">저장</button>
+</div></div>
+
 <!-- ══ 목록 팝업 (공용) ══ -->
 <div class="overlay center" id="mList"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="lTitle">
   <div class="sheet-head"><h2 id="lTitle">-</h2><button class="icon-btn" data-action="close" aria-label="닫기"><svg class="ic"><use href="#i-close"/></svg></button></div>
@@ -669,7 +711,7 @@ const CONFIG = {
   apiKey: 'AIzaSyCnbz3fZHUskmsA-fEd0s5t3DUA6uSCs9c',
   // 구조대 공용 계정 (Firebase 콘솔 → Authentication에서 이 이메일로 계정 생성). 값이 있으면 로그인 화면은 비밀번호만 받습니다.
   sharedEmail: 'rescue.pohang@airssat.app',
-  version: 'v5.2',
+  version: 'v5.3',
   tankPollMin: 5,            // 화면이 켜져 있을 때 탱크 상태 갱신 주기(분)
   fullSyncMin: 30,           // 전체 데이터 재동기화 주기(분)
   resumeSyncMin: 2           // 앱으로 돌아왔을 때 이 시간 이상 지났으면 전체 동기화(분)
@@ -939,6 +981,9 @@ const F = {
 let cal = { y: new Date().getFullYear(), m: new Date().getMonth() };
 const cfg = () => S.cfg;
 const findTank = key => S.tanks.find(t => t._id === key);
+/** 비교용 ID: 대문자·공백 제거·숫자 앞자리 0 제거 (042 = 42, SCU-001 = SCU-1) */
+const normId = s => String(s || '').trim().toUpperCase().replace(/\s+/g, '').replace(/(^|[^0-9])0+(?=\d)/g, '$1');
+const findTanksLoose = id => { const n = normId(id); return n ? S.tanks.filter(t => normId(t.id) === n) : []; };
 function findTankById(id) {
   if (!id) return null;
   const up = String(id).trim().toUpperCase();
@@ -995,7 +1040,8 @@ function insp(t) {
     }
   } else { cycle = c.inspYoung; next = addYears(base, cycle); cycleEst = true; }
   const left = diffDays(today(), next);
-  return { st: left < 0 ? 'due' : left <= 7 ? 'week' : left <= 30 ? 'soon' : 'ok', left, next, cycle, estimated, cycleEst, switched };
+  const st = estimated ? 'noinfo' : left < 0 ? 'due' : left <= 7 ? 'week' : left <= 30 ? 'soon' : 'ok';
+  return { st, left, next, cycle, estimated, cycleEst, switched };
 }
 function life(t) {
   const mfg = mfgDay(t); if (!t.lifeYears || !mfg) return null;
@@ -1028,8 +1074,10 @@ const CAT = {
   airExp: { label: '공기 만료', sub: '재충전 필요', color: 'var(--danger)', fn: t => !t.sendingInsp && ['expired', 'none'].includes(air(t).st) },
   pLow: { label: '압력 부족', sub: '', color: 'var(--orange)', fn: t => !t.sendingInsp && pLow(t) },
   insp: { label: '압력검사', sub: '30일 이내·초과', color: 'var(--purple)', fn: t => !t.sendingInsp && ['due', 'week', 'soon'].includes(insp(t).st) },
-  blocked: { label: '사용금지·발송', sub: '', color: 'var(--orange)', fn: t => isBlocked(t) || !!t.sendingInsp }
+  blocked: { label: '사용금지·발송', sub: '', color: 'var(--orange)', fn: t => isBlocked(t) || !!t.sendingInsp },
+  noinfo: { label: '검사일 미입력', sub: '정보 보완 필요', color: 'var(--dim)', fn: t => ['noinfo', 'unknown'].includes(insp(t).st) }
 };
+const urgentSort = (a, b) => RANK[primary(a)] - RANK[primary(b)] || ((air(a).left ?? -1e6) - (air(b).left ?? -1e6)) || String(a.id).localeCompare(String(b.id));
 const isUrgent = t => isBlocked(t) || (!t.sendingInsp && (['expired', 'none'].includes(air(t).st) || pLow(t) || ['due', 'week'].includes(insp(t).st)));
 
 function tankTags(t) {
@@ -1045,10 +1093,10 @@ function tankTags(t) {
     else out.push(html`<span class="tag t-ok">공기 ${dLabel(a.left)}</span>`);
     if (pLow(t)) out.push(html`<span class="tag t-orange">압력부족</span>`);
   }
-  const est = i.estimated ? '(추정)' : '';
-  if (i.st === 'due') out.push(html`<span class="tag t-purple">검사 ${dLabel(i.left)}${est}</span>`);
-  else if (i.st === 'week') out.push(html`<span class="tag t-orange">검사 ${dLabel(i.left)}${est}</span>`);
-  else if (i.st === 'soon') out.push(html`<span class="tag t-purple">검사 ${dLabel(i.left)}${est}</span>`);
+  if (i.st === 'due') out.push(html`<span class="tag t-purple">검사 ${dLabel(i.left)}</span>`);
+  else if (i.st === 'week') out.push(html`<span class="tag t-orange">검사 ${dLabel(i.left)}</span>`);
+  else if (i.st === 'soon') out.push(html`<span class="tag t-purple">검사 ${dLabel(i.left)}</span>`);
+  else if (i.st === 'noinfo' || i.st === 'unknown') out.push(html`<span class="tag t-dim">검사일 미입력</span>`);
   return out;
 }
 function tankCard(t, extra) {
@@ -1197,16 +1245,32 @@ function renderPage(name) {
 function renderDashboard() {
   const T = S.tanks, now = new Date();
   $('heroDate').textContent = fmtKDay(now);
-  $('heroTitle').textContent = cfg().unit || '공기통 현황';
-  const urgent = T.filter(isUrgent).sort((a, b) => RANK[primary(a)] - RANK[primary(b)] || String(a.id).localeCompare(String(b.id)));
-  $('heroSub').textContent = `전체 ${T.length}개 · 조치 필요 ${urgent.length}개` + (S.lastSync ? ` · ${fmtTime(S.lastSync)} 동기화` : '');
+  const urgent = T.filter(isUrgent).sort(urgentSort);
+  $('heroSub').textContent = `조치 필요 ${urgent.length}개`;
   CAT.airSoon.sub = `${cfg().airWarnDays}일 이내`; CAT.pLow.sub = `${cfg().warnPct}% 미만`;
   setHTML('stats', ['all', 'airOk', 'airSoon', 'airExp', 'pLow', 'insp'].map(k => {
     const c = CAT[k];
     return html`<button class="stat" style="--c:${raw(c.color)}" data-action="catList" data-cat="${k}"><div class="lbl">${c.label}</div><div class="val">${T.filter(c.fn).length}</div><div class="sub">${c.sub}</div></button>`;
   }));
   $('urgentCount').textContent = urgent.length ? `${urgent.length}개` : '';
-  setHTML('dashUrgent', urgent.length ? urgent.map(t => tankCard(t)) : empty('✅', S.loaded || T.length ? '조치가 필요한 탱크가 없습니다.' : '데이터를 불러오는 중입니다.'));
+  if (!T.length) {
+    setHTML('dashUrgent', S.loaded ? html`<div class="card" style="text-align:center;padding:24px 16px"><div style="font-size:36px">🧯</div><p style="font-weight:800;margin:6px 0 4px">아직 등록된 탱크가 없습니다</p><p class="small muted" style="margin-bottom:14px">탱크를 등록해야 충전·검사 관리를 시작할 수 있습니다.</p><button class="btn btn-gold" data-action="addTank"><svg class="ic"><use href="#i-plus"/></svg>첫 탱크 등록</button></div>` : empty('⏳', '데이터를 불러오는 중입니다.'));
+  } else if (!urgent.length) setHTML('dashUrgent', empty('✅', '조치가 필요한 탱크가 없습니다.'));
+  else {
+    const exp = T.filter(CAT.airExp.fn).length + T.filter(CAT.airSoon.fn).length, noinfo = T.filter(CAT.noinfo.fn).length;
+    const byLoc = {}; urgent.forEach(t => { const l = t.location || '미지정'; const g = byLoc[l] = byLoc[l] || { n: 0, exp: 0, low: 0, insp: 0, ban: 0 }; g.n++; const p = primary(t); if (p === 'failed') g.ban++; else if (p === 'airExp') g.exp++; else if (p === 'pLow') g.low++; else g.insp++; });
+    const locRows = Object.entries(byLoc).sort((a, b) => b[1].n - a[1].n);
+    setHTML('dashUrgent', html`
+      ${exp ? html`<button class="btn btn-gold" data-action="bulk" data-mode="charge" data-quick="exp">⚡ 만료·임박 ${exp}개 일괄 충전 기록</button>` : ''}
+      <div class="card loc-card">${locRows.map(([loc, g]) => html`<button class="loc-row" data-action="locList" data-loc="${loc}">
+        <span class="loc-name">📍 ${loc}</span>
+        <span class="loc-tags">${g.exp ? html`<span class="tag t-danger">만료 ${g.exp}</span>` : ''}${g.low ? html`<span class="tag t-orange">압력 ${g.low}</span>` : ''}${g.insp ? html`<span class="tag t-purple">검사 ${g.insp}</span>` : ''}${g.ban ? html`<span class="tag t-danger">금지 ${g.ban}</span>` : ''}</span>
+        <b class="loc-n">${g.n}</b><svg class="ic sm dim"><use href="#i-right"/></svg></button>`)}</div>
+      <div class="tiny dim" style="margin:12px 2px 6px;font-weight:700">가장 급한 탱크</div>
+      <div class="list">${urgent.slice(0, 5).map(t => tankCard(t))}</div>
+      ${urgent.length > 5 ? html`<button class="btn btn-line" style="margin-top:8px" data-action="urgentAll">전체 ${urgent.length}개 보기</button>` : ''}
+      ${noinfo ? html`<button class="notice" style="display:block;width:100%;text-align:left;margin-top:10px" data-action="bulk" data-mode="info" data-quick="noinfo">📝 <b>검사일 미입력 ${noinfo}개</b> — 마지막 검사일·제조연월을 입력하면 정확한 검사 기한이 계산됩니다. <span style="color:var(--gold2);font-weight:800">일괄 입력 ›</span></button>` : ''}`);
+  }
   renderCharts();
   const recent = S.charges.slice(0, 5);
   setHTML('dashRecent', recent.length ? recent.map(c => chargeItem(c)) : empty('📋', '충전 기록이 없습니다.'));
@@ -1216,7 +1280,7 @@ function chargeItem(c, withActions) {
     <div class="item-main"><div class="item-title">${c.tankId}</div>
       <div class="item-sub">${fmtDT(c.date)} · ${c.charger || '-'}${c.usage ? raw(' · <b style="color:var(--gold2)">' + esc(c.usage) + '</b>') : ''}${c.note ? ' · ' + c.note : ''}</div></div>
     <div class="item-val">${c.pressure}<small> bar</small></div>
-    ${withActions ? html`<div class="item-actions"><button class="mini gold" data-action="editCharge" data-cid="${c._id}">수정</button><button class="mini red" data-action="deleteCharge" data-cid="${c._id}">삭제</button></div>` : ''}
+    <svg class="ic sm dim"><use href="#i-right"/></svg>
   </div>`;
 }
 function renderCharts() {
@@ -1246,12 +1310,16 @@ function renderCharts() {
   setHTML('chartUsage', rows.length ? rows.map(([u, n]) => html`<div class="hbar"><div class="row"><span>${u}</span><b>${n}건</b></div><div class="track"><i style="width:${Math.round(n / um * 100)}%"></i></div></div>`) : html`<p class="small dim" style="padding:8px 0">이번 달 충전 기록이 없습니다.</p>`);
 }
 
-/* ── 칩 필터 ── */
+/* ── 칩 필터 / 한 줄 셀렉트 필터 ── */
+function filterRow(elId, scope, sortOpts) {
+  const f = F[scope], sel = (key, opts) => html`<select class="input fsel" data-fscope="${scope}" data-fkey="${key}" aria-label="${key}">${opts.map(([v, l]) => html`<option value="${v}" ${f[key] === v ? raw('selected') : ''}>${l}</option>`)}</select>`;
+  setHTML(elId, html`${sel('loc', locOpts())}${sel('pur', purOpts())}${sel('sort', sortOpts)}`);
+}
 function chips(elId, scope, key, opts) {
   setHTML(elId, opts.map(([v, label]) => html`<button class="chip ${F[scope][key] === v ? 'active' : ''}" data-action="chip" data-scope="${scope}" data-key="${key}" data-val="${v}">${label}</button>`));
 }
-const locOpts = () => [['all', '📍 전체 위치'], ...LOCATIONS.map(l => [l, l]), ['', '미지정']];
-const purOpts = () => [['all', '전체 용도'], ...Object.entries(PURPOSES).map(([k, p]) => [k, p.emoji + ' ' + p.label])];
+const locOpts = () => [['all', '📍 위치 전체'], ...LOCATIONS.map(l => [l, l]), ['', '미지정']];
+const purOpts = () => [['all', '용도 전체'], ...Object.entries(PURPOSES).map(([k, p]) => [k, p.emoji + ' ' + p.label])];
 function filterCommon(t, f) {
   if (f.loc !== 'all' && (t.location || '') !== f.loc) return false;
   if (f.pur !== 'all' && (t.purpose || '') !== f.pur) return false;
@@ -1261,9 +1329,7 @@ function filterCommon(t, f) {
 function renderTanks() {
   const f = F.tanks;
   chips('chipsTankSt', 'tanks', 'st', [['all', '전체'], ['airExp', '공기만료'], ['airSoon', '만료임박'], ['pLow', '압력부족'], ['insp', '검사필요'], ['blocked', '사용금지·발송']]);
-  chips('chipsTankLoc', 'tanks', 'loc', locOpts());
-  chips('chipsTankPur', 'tanks', 'pur', purOpts());
-  chips('chipsTankSort', 'tanks', 'sort', [['status', '정렬: 상태순'], ['id', 'ID순'], ['loc', '위치순'], ['pressure', '압력 낮은순']]);
+  filterRow('fltTank', 'tanks', [['status', '상태순'], ['id', 'ID순'], ['loc', '위치순'], ['pressure', '압력 낮은순']]);
   const q = f.q.trim().toLowerCase();
   let list = S.tanks.filter(t => {
     if (q && ![t.id, t.location, volDisplay(t.vol)].some(v => String(v || '').toLowerCase().includes(q))) return false;
@@ -1284,8 +1350,8 @@ function inspBuckets() {
   const later = [], unknown = [];
   S.tanks.forEach(t => {
     const i = insp(t);
+    if (i.st === 'unknown' || i.st === 'noinfo') { if (!t.inspFailed) { unknown.push(t); return; } }
     if (t.inspFailed || (i.left !== null && i.left !== undefined && i.left < 0)) { buckets[0].list.push(t); return; }
-    if (i.st === 'unknown') { unknown.push(t); return; }
     const b = buckets.find(x => x.key === String(i.next.getFullYear()));
     (b ? b.list : later).push(t);
   });
@@ -1314,7 +1380,7 @@ function renderInspBars() {
     })}</div>
     <div class="cal-legend" style="flex-wrap:wrap"><span><i style="background:var(--purple);border-radius:2px"></i>검사할 것</span><span><i style="background:var(--ok);border-radius:2px"></i>검사 완료</span><span><i style="background:var(--danger);border-radius:2px"></i>기한 초과·불합격</span></div>
     ${unknown.length || later.length ? html`<div class="tiny dim" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-      ${unknown.length ? html`<button class="mini" data-action="inspBar" data-key="unknown">검사정보 없음 ${unknown.length}</button>` : ''}
+      ${unknown.length ? html`<button class="mini" data-action="inspBar" data-key="unknown">검사일 미입력 ${unknown.length}</button>` : ''}
       ${later.length ? html`<button class="mini" data-action="inspBar" data-key="later">${+y0 + 5}년 이후 ${later.length}</button>` : ''}</div>` : ''}`);
 }
 function openInspBar(key) {
@@ -1322,7 +1388,7 @@ function openInspBar(key) {
   const list = key === 'unknown' ? unknown : key === 'later' ? later : (buckets.find(b => b.key === key) || { list: [] }).list;
   const done = /^\d{4}$/.test(key) ? inspDoneByYear(key) : [];
   if (!list.length && !done.length) return toast('해당하는 탱크가 없습니다.');
-  const title = key === 'over' ? '⛔ 압력검사 기한 초과·불합격' : key === 'unknown' ? '검사정보 없음' : key === 'later' ? '5년 이후 도래' : `🔬 ${key}년 압력 재검사`;
+  const title = key === 'over' ? '⛔ 압력검사 기한 초과·불합격' : key === 'unknown' ? '검사일 미입력 (정보 보완 필요)' : key === 'later' ? '5년 이후 도래' : `🔬 ${key}년 압력 재검사`;
   const sorted = [...list].sort((a, b) => ((insp(a).next || 0) - (insp(b).next || 0)));
   const groups = {}; sorted.forEach(t => { const n = insp(t).next; const g = t.inspFailed ? '불합격 (재검사·폐기 필요)' : n ? `${n.getFullYear()}년 ${n.getMonth() + 1}월` : '제조연월·검사일 입력 필요'; (groups[g] = groups[g] || []).push(t); });
   const sub = /^\d{4}$/.test(key) ? `검사할 것 ${list.length}개 · 검사 완료 ${done.length}개` : `총 ${list.length}개`;
@@ -1341,21 +1407,19 @@ function inspItem(t) {
 function renderSchedule() {
   renderInspBars();
   const c = cfg();
-  setHTML('ruleNotice', html`<b>🔬 압력 재검사</b> · 경과 ${c.inspAgeYears}년 이하 <b>${c.inspYoung}년</b>마다, 초과 <b>${c.inspOld}년</b>마다 (고압가스 안전관리법 기준 · 설정에서 변경)<br>
-    <span class="tiny dim">기준일: 마지막 검사일 → 없으면 제조연월/도입연도(추정). 기본 주기 중 경과연수를 넘기면 그 시점부터 노후 주기 적용. 실제 기한은 용기 각인과 검사증으로 확인하세요.</span>`);
-  chips('chipsSchSt', 'sch', 'st', [['all', '전체'], ['due', '🔴 초과·불합격'], ['month', '🟠 30일 이내'], ['year', '🟡 1년 이내'], ['ok', '🟢 여유'], ['unknown', '정보없음']]);
-  chips('chipsSchLoc', 'sch', 'loc', locOpts());
-  chips('chipsSchPur', 'sch', 'pur', purOpts());
-  chips('chipsSchSort', 'sch', 'sort', [['insp', '정렬: 검사 임박순'], ['last', '최근검사 오래된순'], ['id', 'ID순']]);
+  setHTML('ruleNotice', html`<summary>🔬 압력 재검사 기준 <span class="dim">(눌러서 보기)</span></summary><div style="margin-top:6px">경과 ${c.inspAgeYears}년 이하 <b>${c.inspYoung}년</b>마다, 초과 <b>${c.inspOld}년</b>마다 (고압가스 안전관리법 기준 · 설정에서 변경)<br>
+    <span class="tiny dim">기준일: 마지막 검사일 → 없으면 제조연월/도입연도(추정). 기본 주기 중 경과연수를 넘기면 그 시점부터 노후 주기 적용. 실제 기한은 용기 각인과 검사증으로 확인하세요.</span></div>`);
+  chips('chipsSchSt', 'sch', 'st', [['all', '전체'], ['due', '🔴 초과·불합격'], ['month', '🟠 30일 이내'], ['year', '🟡 1년 이내'], ['ok', '🟢 여유'], ['unknown', '검사일 미입력']]);
+  filterRow('fltSch', 'sch', [['insp', '검사 임박순'], ['last', '최근검사 오래된순'], ['id', 'ID순']]);
   const f = F.sch;
   const list = S.tanks.filter(t => {
     if (!filterCommon(t, f)) return false;
-    const i = insp(t), L = i.left;
+    const i = insp(t), info = !['noinfo', 'unknown'].includes(i.st), L = info ? i.left : null;
     if (f.st === 'due') return !!t.inspFailed || (L !== null && L !== undefined && L < 0);
     if (f.st === 'month') return L !== null && L !== undefined && L >= 0 && L <= 30;
     if (f.st === 'year') return L !== null && L !== undefined && L >= 0 && L <= 365;
     if (f.st === 'ok') return L !== null && L !== undefined && L > 365 && !t.inspFailed;
-    if (f.st === 'unknown') return i.st === 'unknown';
+    if (f.st === 'unknown') return !info;
     return true;
   });
   const nz = (v, d) => (v === null || v === undefined) ? d : v;
@@ -1376,8 +1440,9 @@ function renderSchedule() {
 }
 function schCard(t) {
   const i = insp(t);
-  const L = i.left, cls = t.inspFailed ? 's-danger' : i.st === 'unknown' ? 's-dim' : L < 0 ? 's-danger' : L <= 30 ? 's-orange' : L <= 365 ? 's-warn' : 's-ok';
-  const iTxt = t.inspFailed ? '⛔ 불합격 — 재검사/폐기 필요' : i.st === 'unknown' ? '정보 없음 (제조연월·검사일 입력 필요)' : html`${localDate(i.next)} <b>(${dLabel(L)})</b>${i.estimated ? ' ⚠️추정' : ''}`;
+  const noInfo = ['noinfo', 'unknown'].includes(i.st);
+  const L = i.left, cls = t.inspFailed ? 's-danger' : noInfo ? 's-dim' : L < 0 ? 's-danger' : L <= 30 ? 's-orange' : L <= 365 ? 's-warn' : 's-ok';
+  const iTxt = t.inspFailed ? '⛔ 불합격 — 재검사/폐기 필요' : i.st === 'unknown' ? '검사일 미입력 (제조연월·검사일 입력 필요)' : i.st === 'noinfo' ? html`검사일 미입력 <span class="dim">(제조 기준 추정 ${localDate(i.next)})</span>` : html`${localDate(i.next)} <b>(${dLabel(L)})</b>`;
   const ageBase = t.mfgDate ? `제조 ${t.mfgDate}` : t.introduceYear ? `도입 ${t.introduceYear}년` : '제조/도입 정보 없음';
   const lastRec = S.insps.find(x => x.tankId === t.id);
   return html`<button class="tank ${cls}" data-action="tank" data-key="${t._id}">
@@ -1427,6 +1492,8 @@ function openCalDay(d) {
     ${mk.exp.length ? html`<div class="small" style="color:var(--danger);font-weight:800;margin:12px 0 6px">⏰ 공기 만료 — 재충전 필요 (${mk.exp.length})</div>${groupByLoc(mk.exp).map(([loc, arr]) => html`<div class="tiny dim" style="margin:8px 0 4px;font-weight:700">📍 ${loc}</div>${arr.map(t => html`<button class="item" data-action="tank" data-key="${t._id}"><div class="item-main"><div class="item-title">${t.id}</div><div class="item-sub">${volDisplay(t.vol)} · 마지막 충전 ${t.lastChargeDate || '-'}</div></div><b class="small" style="color:var(--danger)">${dLabel(air(t).left)}</b></button>`)}`)}` : ''}`);
 }
 function renderHistory() {
+  const expN = S.tanks.filter(t => CAT.airExp.fn(t) && !isBlocked(t)).length;
+  setHTML('chargeAlert', expN ? html`<button class="notice danger" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin-bottom:10px" data-action="bulk" data-mode="charge" data-quick="exp"><span style="flex:1">⏰ <b>이미 공기가 만료된 탱크 ${expN}개</b><br><span class="tiny">달력에는 이번 달 만료일만 표시됩니다</span></span><b style="color:var(--gold2);white-space:nowrap">일괄 충전 ›</b></button>` : '');
   renderCalendar();
   const f = F.hist, q = f.q.trim().toLowerCase(), month = f.all ? '' : calKey();
   $('histAllBtn').textContent = f.all ? '이 달만 보기' : '전체 기간 보기';
@@ -1493,9 +1560,9 @@ function renderDetail() {
   $('dTitle').textContent = t.id;
   const airTxt = t.sendingInsp ? '검사 발송중' : a.st === 'none' ? '충전 기록 없음' : html`${localDate(a.exp)} 만료 <b>(${dLabel(a.left)})</b>`;
   const airColor = { ok: 'var(--ok)', soon: 'var(--warn)', expired: 'var(--danger)', none: 'var(--danger)' }[a.st];
-  const inspTxt = i.st === 'unknown' ? '정보 없음 (제조연월·검사일 입력 필요)' : html`${localDate(i.next)} <b>(${dLabel(i.left)})</b>${i.estimated ? ' · 추정' : ''}`;
+  const inspTxt = i.st === 'unknown' ? '검사일 미입력 (제조연월·검사일 입력 필요)' : i.st === 'noinfo' ? html`검사일 미입력 · 추정 ${localDate(i.next)}` : html`${localDate(i.next)} <b>(${dLabel(i.left)})</b>`;
   const failTxt = t.inspFailed ? html`<b>불합격 — 재검사 또는 폐기 필요</b>` : null;
-  const inspColor = t.inspFailed ? 'var(--danger)' : { due: 'var(--danger)', week: 'var(--orange)', soon: 'var(--warn)', ok: 'var(--ok)', unknown: 'var(--sub)' }[i.st];
+  const inspColor = t.inspFailed ? 'var(--danger)' : { due: 'var(--danger)', week: 'var(--orange)', soon: 'var(--warn)', ok: 'var(--ok)', unknown: 'var(--sub)', noinfo: 'var(--sub)' }[i.st];
   setHTML('dBody', html`
     <div class="card" style="background:var(--bg2)">
       <div style="display:flex;align-items:center;gap:14px">
@@ -1603,7 +1670,8 @@ async function saveTank(btn) {
   const purpose = $('fPurpose').value, volSel = $('fVol').value;
   if (!id) return toast('탱크 ID를 입력하세요.', true);
   if (/[\/\\]/.test(id)) return toast('ID에 / 또는 \\ 문자는 쓸 수 없습니다.', true);
-  if (S.tanks.some(x => x !== t && String(x.id || '').toUpperCase() === id)) return toast('이미 등록된 ID입니다.', true);
+  const dup = S.tanks.find(x => x !== t && normId(x.id) === normId(id));
+  if (dup) return toast(dup.id === id ? '이미 등록된 ID입니다.' : `이미 등록된 ${dup.id}와 같은 번호입니다. (앞자리 0 차이)`, true);
   if (!purpose && !t) return toast('용도를 선택하세요.', true);
   if (!volSel) return toast('용기 용량을 선택하세요.', true);
   const vol = volSel === '__keep' ? t.vol : (CYLINDERS[purpose] || [])[+volSel]?.label;
@@ -1684,25 +1752,38 @@ function lookup(input) {
   const id = String(input || '').trim().toUpperCase();
   if (!id) return toast('탱크 ID를 입력하세요.', true);
   $('manualId').value = '';
-  const t = findTankById(id);
+  let t = findTankById(id), looseNote = '';
+  if (!t) {
+    const loose = findTanksLoose(id);
+    if (loose.length === 1) { t = loose[0]; looseNote = `'${id}' 입력 → ${t.id} 탱크로 찾았습니다`; }
+    else if (loose.length > 1) {
+      scanTank = null; $('chargeForm').classList.add('hidden');
+      const box = $('scanResult'); box.classList.remove('hidden');
+      setHTML(box, html`<div class="result-id">${id}</div><div class="notice warn" style="margin:10px 0">같은 번호로 보이는 탱크가 ${loose.length}개 있습니다. 선택하세요.</div>
+        ${loose.map(x => html`<button class="item" data-action="pickTank" data-id="${x.id}"><div class="item-main"><div class="item-title">${x.id}</div><div class="item-sub">${volDisplay(x.vol)} · 📍${x.location || '미지정'}</div></div><b class="small" style="color:var(--gold2)">선택</b></button>`)}`);
+      return;
+    }
+  }
   scanTank = t;
   const box = $('scanResult'); box.classList.remove('hidden');
   if (!t) {
     $('chargeForm').classList.add('hidden');
+    const n = normId(id), similar = S.tanks.filter(x => normId(x.id).includes(n) || n.includes(normId(x.id))).slice(0, 5);
     setHTML(box, html`<div class="result-id">${id}</div><div class="notice warn" style="margin:10px 0">⚠️ 등록되지 않은 탱크입니다. 먼저 등록해야 충전 기록을 남길 수 있습니다.</div>
-      <button class="btn btn-gold" data-action="registerScanned" data-id="${id}"><svg class="ic"><use href="#i-plus"/></svg>이 ID로 탱크 등록</button>`);
+      ${similar.length ? html`<div class="small muted" style="font-weight:700;margin:4px 0 6px">혹시 이 탱크인가요?</div>${similar.map(x => html`<button class="item" data-action="pickTank" data-id="${x.id}"><div class="item-main"><div class="item-title">${x.id}</div><div class="item-sub">${volDisplay(x.vol)} · 📍${x.location || '미지정'}</div></div><b class="small" style="color:var(--gold2)">선택</b></button>`)}<div style="height:10px"></div>` : ''}
+      <button class="btn btn-line" data-action="registerScanned" data-id="${id}"><svg class="ic"><use href="#i-plus"/></svg>새 탱크로 등록 (${id})</button>`);
     return;
   }
   const blocked = isBlocked(t) || t.sendingInsp;
   setHTML(box, html`<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
-      <div><div class="result-id">${t.id}</div><div class="small muted">${volDisplay(t.vol)} · 📍${t.location || '미지정'}</div></div>
+      <div><div class="result-id">${t.id}</div><div class="small muted">${volDisplay(t.vol)} · 📍${t.location || '미지정'}</div>${looseNote ? html`<div class="tiny" style="color:var(--info);margin-top:2px">🔎 ${looseNote}</div>` : ''}</div>
       <button class="mini gold" data-action="tank" data-key="${t._id}">상세</button></div>
     <div style="margin-top:8px">${tankTags(t)}</div>
     ${blocked ? html`<div class="notice danger" style="margin-top:10px">⛔ ${t.sendingInsp ? '압력검사 발송중인 탱크입니다.' : '사용금지 상태의 탱크입니다.'} 충전할 수 없습니다.</div>` : ''}`);
   if (blocked) { $('chargeForm').classList.add('hidden'); return; }
-  usageOptions($('cUsage'), '');
+  usageOptions($('cUsage'), Local.get('dev', {}).lastUsage || '');
   $('cLoc').value = LOCATIONS.includes(t.location) ? t.location : LOCATIONS[0];
-  $('cPre').value = pressure(t); $('cPost').value = maxP(t);
+  $('cPre').value = ''; $('cPre').placeholder = `지난 기록 ${pressure(t)}`; $('cPost').value = maxP(t);
   $('cWhen').value = localDT(); $('cWhen').max = localDT(new Date(Date.now() + 5 * 60000));
   const dev = Local.get('dev', {}); $('cCharger').value = dev.charger || dev.lastCharger || '';
   $('cNote').value = '';
@@ -1732,7 +1813,7 @@ async function saveCharge(btn) {
     const _id = DB.newId(), writes = [DB.create('charges', _id, rec)];
     if (Object.keys(upd).length) writes.push(DB.update('tanks', t._id, { ...upd, ...stamp() }));
     await commit(writes, () => { S.charges.push({ ...rec, _id }); Object.assign(t, upd); });
-    const dev = Local.get('dev', {}); dev.lastCharger = charger; Local.set('dev', dev);
+    const dev = Local.get('dev', {}); dev.lastCharger = charger; dev.lastUsage = usage; Local.set('dev', dev);
     toast(`✅ ${t.id} 충전 기록 완료 · ${loc}`);
     cancelCharge(); $('manualId').focus();
   });
@@ -1811,7 +1892,8 @@ function openChargeDetail(cid) {
     <div class="kv"><span class="k">보관 위치</span><span class="v">${c.location || (t && t.location) || '-'}</span></div>
     ${c.note ? html`<div class="kv"><span class="k">비고</span><span class="v">${c.note}</span></div>` : ''}
   </div>
-  <div class="btn-row">${t ? html`<button class="btn btn-line" data-action="tank" data-key="${t._id}">탱크 상세</button>` : html`<span></span>`}<button class="btn btn-line" data-action="editCharge" data-cid="${c._id}">✏️ 수정</button></div>`);
+  <div class="btn-row">${t ? html`<button class="btn btn-line" data-action="tank" data-key="${t._id}">탱크 상세</button>` : html`<span></span>`}<button class="btn btn-line" data-action="editCharge" data-cid="${c._id}">✏️ 수정</button></div>
+  <button class="btn btn-ghost" style="margin-top:14px;color:#ff9b9b;border-color:rgba(255,93,93,.35)" data-action="deleteCharge" data-cid="${c._id}">🗑 이 충전 기록 삭제</button>`);
 }
 let editCid = null;
 function openChargeEdit(cid) {
@@ -1862,6 +1944,122 @@ async function deleteCharge(cid, btn) {
     await commit(writes, () => { S.charges = S.charges.filter(x => x !== c); if (tUpd) Object.assign(t, tUpd); });
     if (topModal() === 'mList') closeModal('mList');
     toast('🗑 충전 기록 삭제' + (tUpd ? ` · ${t.id} 마지막 충전일을 ${tUpd.lastChargeDate}로 되돌림` : ''));
+  });
+}
+
+/* ══════════ 일괄 처리 (충전 기록 · 검사 발송 · 정보 입력) ══════════ */
+const B = { mode: 'charge', quick: 'exp', loc: 'all', sel: new Set() };
+const BULK = {
+  charge: { title: '⚡ 일괄 충전 기록', save: '충전 기록 저장', eligible: t => !isBlocked(t) && !t.sendingInsp,
+    quick: [['exp', '만료·임박'], ['low', '압력부족'], ['all', '전체']],
+    match: { exp: t => CAT.airExp.fn(t) || CAT.airSoon.fn(t), low: t => pLow(t), all: () => true },
+    sub: t => { const a = air(t); return a.st === 'none' ? '충전기록 없음' : a.st === 'expired' ? `공기만료 ${dLabel(a.left)}` : a.st === 'soon' ? `만료 ${dLabel(a.left)}` : `공기 ${dLabel(a.left)}`; } },
+  send: { title: '📦 일괄 검사 발송', save: '검사 발송 처리', eligible: t => !t.sendingInsp,
+    quick: [['insp', '기한 초과·임박'], ['noinfo', '검사일 미입력'], ['all', '전체']],
+    match: { insp: t => t.inspFailed || ['due', 'week', 'soon'].includes(insp(t).st) || (insp(t).left !== null && insp(t).left <= 90 && insp(t).st === 'ok'), noinfo: t => CAT.noinfo.fn(t), all: () => true },
+    sub: t => { const i = insp(t); return t.inspFailed ? '불합격' : ['noinfo', 'unknown'].includes(i.st) ? '검사일 미입력' : `검사 ${localDate(i.next)} (${dLabel(i.left)})`; } },
+  info: { title: '📝 정보 일괄 입력', save: '정보 저장', eligible: () => true,
+    quick: [['noinfo', '검사일 미입력'], ['nomfg', '제조연월 없음'], ['all', '전체']],
+    match: { noinfo: t => !t.lastInspDate, nomfg: t => !t.mfgDate, all: () => true },
+    sub: t => `검사 ${t.lastInspDate || '미입력'} · 제조 ${t.mfgDate || (t.introduceYear ? '도입 ' + t.introduceYear : '미입력')}` }
+};
+function bulkCandidates() {
+  const m = BULK[B.mode], fn = m.match[B.quick] || m.match.all;
+  return S.tanks.filter(t => m.eligible(t) && fn(t) && (B.loc === 'all' || (t.location || '') === B.loc))
+    .sort((a, b) => String(a.location || '').localeCompare(String(b.location || '')) || String(a.id).localeCompare(String(b.id), 'ko', { numeric: true }));
+}
+function openBulk(mode = 'charge', quick) {
+  B.mode = mode; B.quick = quick && BULK[mode].match[quick] ? quick : BULK[mode].quick[0][0]; B.loc = 'all';
+  B.sel = new Set(bulkCandidates().map(t => t._id));
+  fillSelect($('bLoc'), [['all', '📍 위치 전체'], ...LOCATIONS.map(l => [l, l]), ['', '미지정']], 'all');
+  renderBulkForm(); renderBulk();
+  if (topModal() === 'mList') swapModal('mList', 'mBulk'); else if (topModal() === 'mDetail') swapModal('mDetail', 'mBulk'); else openModal('mBulk');
+}
+function renderBulk() {
+  const m = BULK[B.mode], list = bulkCandidates(), ids = new Set(list.map(t => t._id));
+  [...B.sel].forEach(k => { if (!ids.has(k)) B.sel.delete(k); });
+  $('bTitle').textContent = m.title;
+  document.querySelectorAll('#bModes button').forEach(b => b.classList.toggle('active', b.dataset.mode === B.mode));
+  setHTML('bQuick', m.quick.map(([v, l]) => html`<button class="chip ${B.quick === v ? 'active' : ''}" data-action="bulkQuick" data-val="${v}">${l} ${S.tanks.filter(t => m.eligible(t) && m.match[v](t)).length}</button>`));
+  setHTML('bList', list.length ? list.map(t => html`<button class="brow ${B.sel.has(t._id) ? 'on' : ''}" data-action="bulkToggle" data-key="${t._id}" role="checkbox" aria-checked="${B.sel.has(t._id)}">
+      <input type="checkbox" tabindex="-1" ${B.sel.has(t._id) ? raw('checked') : ''}><span class="bid">${t.id}</span><span class="bsub">📍${t.location || '미지정'} · ${m.sub(t)}</span></button>`)
+    : html`<p class="small dim" style="padding:18px;text-align:center">해당하는 탱크가 없습니다.</p>`);
+  $('bAll').checked = list.length > 0 && list.every(t => B.sel.has(t._id));
+  $('bCount').textContent = `${B.sel.size}개 선택`;
+  $('bSaveBtn').textContent = `${m.save} (${B.sel.size}개)`;
+  $('bSaveBtn').disabled = !B.sel.size;
+}
+function renderBulkForm() {
+  const dev = Local.get('dev', {});
+  if (B.mode === 'charge') {
+    setHTML('bForm', html`<div class="field"><label for="bUsage">사용 내용 <span class="req">★</span></label><select class="input" id="bUsage" data-usage-select="bUsageEtcWrap"></select></div>
+      <div class="field hidden" id="bUsageEtcWrap"><label for="bUsageEtc">기타 내용</label><input class="input" id="bUsageEtc" maxlength="40"></div>
+      <div class="grid2">
+        <div class="field"><label for="bPmode">충전 후 압력</label><select class="input" id="bPmode"><option value="max">용기별 최대압력</option><option value="custom">직접 입력</option></select></div>
+        <div class="field"><label for="bPval">압력 (bar)</label><input class="input mono" id="bPval" type="number" min="1" max="400" placeholder="최대압력" disabled></div>
+      </div>
+      <div class="field"><label for="bLocTo">충전 후 보관위치</label><select class="input" id="bLocTo"><option value="">현재 위치 그대로</option>${LOCATIONS.map(l => html`<option value="${l}">${l}</option>`)}</select></div>
+      <div class="field"><label for="bWhen">충전 일시</label><input class="input" id="bWhen" type="datetime-local" value="${localDT()}"></div>
+      <div class="field"><label for="bCharger">담당자 <span class="req">★</span></label><input class="input" id="bCharger" maxlength="20" value="${dev.charger || dev.lastCharger || ''}"></div>
+      <div class="field"><label for="bNote">비고</label><input class="input" id="bNote" maxlength="100" placeholder="예: 정기 월간 충전"></div>`);
+    usageOptions($('bUsage'), dev.lastUsage || '');
+    $('bUsage').addEventListener('change', () => $('bUsageEtcWrap').classList.toggle('hidden', $('bUsage').value !== '기타'));
+    $('bPmode').addEventListener('change', e => { $('bPval').disabled = e.target.value !== 'custom'; if (!$('bPval').disabled) $('bPval').focus(); });
+  } else if (B.mode === 'send') {
+    setHTML('bForm', html`<div class="field"><label for="bSendDate">발송일</label><input class="input" id="bSendDate" type="date" value="${localDate()}" max="${localDate()}"></div>
+      <div class="hint" style="margin-top:-6px">발송중인 탱크는 충전이 막히고 만료 경고에서 빠집니다. 검사 결과를 기록하면 자동으로 해제됩니다.</div>`);
+  } else {
+    setHTML('bForm', html`<div class="notice warn small" style="margin-bottom:12px">입력한 칸만 선택한 탱크에 덮어씁니다. 비워둔 칸은 바뀌지 않습니다.</div>
+      <div class="field"><label for="bLastInsp">마지막 압력검사일</label><input class="input" id="bLastInsp" type="date" max="${localDate()}"></div>
+      <div class="grid2">
+        <div class="field"><label for="bMfg">제조연월 (각인)</label><input class="input" id="bMfg" type="month" max="${localMonth()}"></div>
+        <div class="field"><label for="bYear">도입 연도</label><input class="input mono" id="bYear" type="number" min="1970" max="2100"></div>
+      </div>`);
+  }
+}
+async function bulkSave(btn) {
+  const targets = [...B.sel].map(findTank).filter(Boolean);
+  if (!targets.length) return toast('탱크를 선택하세요.', true);
+  const writes = [], applies = [], st = stamp();
+  if (B.mode === 'charge') {
+    const usage = usageValue('bUsage', 'bUsageEtc'), charger = $('bCharger').value.trim(), whenV = $('bWhen').value, locTo = $('bLocTo').value;
+    const custom = $('bPmode').value === 'custom', pv = numOrNull($('bPval').value);
+    if (!usage) return toast('사용 내용을 선택하세요.', true);
+    if (!charger) return toast('담당자를 입력하세요.', true);
+    if (custom && (pv === null || pv <= 0 || pv > 400)) return toast('충전 압력을 1~400 bar로 입력하세요.', true);
+    const when = whenV ? new Date(whenV) : new Date();
+    if (isNaN(when) || when.getTime() > Date.now() + 5 * 60000) return toast('충전 일시를 확인하세요.', true);
+    const blocked = targets.filter(t => isBlocked(t) || t.sendingInsp);
+    if (blocked.length) return toast(`충전할 수 없는 탱크가 포함되어 있습니다: ${blocked.map(t => t.id).join(', ')}`, true);
+    if (!confirm(`${targets.length}개 탱크의 충전 기록을 저장할까요?\n사용내용: ${usage} · 담당: ${charger}`)) return;
+    const day = localDate(when), note = $('bNote').value.trim();
+    targets.forEach(t => {
+      const post = custom ? pv : maxP(t), loc = locTo || t.location || '';
+      const rec = { tankId: t.id, date: when.toISOString(), pressure: post, prePressure: null, usage, charger, note, location: loc, createdBy: (Auth.data && Auth.data.email) || '', bulk: true };
+      const _id = DB.newId(); writes.push(DB.create('charges', _id, rec));
+      const upd = {}; if (locTo && locTo !== (t.location || '')) upd.location = locTo;
+      if (!t.lastChargeDate || day >= t.lastChargeDate) { upd.pressure = post; upd.lastChargeDate = day; }
+      if (Object.keys(upd).length) writes.push(DB.update('tanks', t._id, { ...upd, ...st }));
+      applies.push(() => { S.charges.push({ ...rec, _id }); Object.assign(t, upd); });
+    });
+    const dev = Local.get('dev', {}); dev.lastCharger = charger; dev.lastUsage = usage; Local.set('dev', dev);
+  } else if (B.mode === 'send') {
+    const d = $('bSendDate').value || localDate();
+    if (!confirm(`${targets.length}개 탱크를 압력검사 발송 처리할까요?`)) return;
+    targets.forEach(t => { const upd = { sendingInsp: true, sendingInspDate: d, ...st }; writes.push(DB.update('tanks', t._id, upd)); applies.push(() => Object.assign(t, upd)); });
+  } else {
+    const li = $('bLastInsp').value, mfg = $('bMfg').value, yr = numOrNull($('bYear').value);
+    if (!li && !mfg && yr === null) return toast('입력할 값을 하나 이상 넣으세요.', true);
+    if (li && li > localDate()) return toast('미래 날짜는 입력할 수 없습니다.', true);
+    if (yr !== null && (yr < 1970 || yr > new Date().getFullYear())) return toast('도입 연도를 확인하세요.', true);
+    const parts = [li && `마지막 검사일 ${li}`, mfg && `제조연월 ${mfg}`, yr !== null && `도입연도 ${yr}`].filter(Boolean).join(', ');
+    if (!confirm(`${targets.length}개 탱크에 다음 값을 입력할까요?\n${parts}`)) return;
+    targets.forEach(t => { const upd = { ...st }; if (li) upd.lastInspDate = li; if (mfg) upd.mfgDate = mfg; if (yr !== null) upd.introduceYear = yr; writes.push(DB.update('tanks', t._id, upd)); applies.push(() => Object.assign(t, upd)); });
+  }
+  await runAction(btn, async () => {
+    await commit(writes, () => applies.forEach(f => f()));
+    closeModal('mBulk');
+    toast(`✅ ${targets.length}개 ${B.mode === 'charge' ? '충전 기록' : B.mode === 'send' ? '검사 발송' : '정보 입력'} 완료`);
   });
 }
 
@@ -2064,6 +2262,14 @@ const ACTIONS = {
   scanToggle: () => Scan.on ? Scan.stop() : Scan.start(),
   manualLookup: () => lookup($('manualId').value),
   registerScanned: el => openTankForm(null, { id: el.dataset.id }),
+  pickTank: el => lookup(el.dataset.id),
+  bulk: el => openBulk(el.dataset.mode, el.dataset.quick),
+  bulkMode: el => { B.mode = el.dataset.mode; B.quick = BULK[B.mode].quick[0][0]; B.sel = new Set(bulkCandidates().map(t => t._id)); renderBulkForm(); renderBulk(); },
+  bulkQuick: el => { B.quick = el.dataset.val; B.sel = new Set(bulkCandidates().map(t => t._id)); renderBulk(); },
+  bulkToggle: el => { const k = el.dataset.key; B.sel.has(k) ? B.sel.delete(k) : B.sel.add(k); renderBulk(); },
+  bulkSave: el => bulkSave(el),
+  locList: el => { const loc = el.dataset.loc, list = S.tanks.filter(t => isUrgent(t) && (t.location || '미지정') === loc).sort(urgentSort); openList(`📍 ${loc}`, `조치 필요 ${list.length}개`, html`<div class="list">${list.map(t => tankCard(t))}</div>`); },
+  urgentAll: () => { const list = S.tanks.filter(isUrgent).sort(urgentSort); openList('🔴 즉시 조치 필요', `총 ${list.length}개`, html`<div class="list">${list.map(t => tankCard(t))}</div>`); },
   saveCharge: el => saveCharge(el),
   cancelCharge: () => cancelCharge(),
   addTank: () => openTankForm(null),
@@ -2102,6 +2308,9 @@ document.addEventListener('keydown', e => {
 });
 $('loginForm').addEventListener('submit', doLogin);
 $('manualId').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lookup($('manualId').value); } });
+document.addEventListener('change', e => { const el = e.target; if (el.dataset && el.dataset.fscope) { F[el.dataset.fscope][el.dataset.fkey] = el.value; renderPage(S.page); } });
+$('bLoc').addEventListener('change', e => { B.loc = e.target.value; B.sel = new Set(bulkCandidates().map(t => t._id)); renderBulk(); });
+$('bAll').addEventListener('change', e => { const list = bulkCandidates(); if (e.target.checked) list.forEach(t => B.sel.add(t._id)); else list.forEach(t => B.sel.delete(t._id)); renderBulk(); });
 $('tankSearch').addEventListener('input', debounce(e => { F.tanks.q = e.target.value; renderTanks(); }, 150));
 $('histSearch').addEventListener('input', debounce(e => { F.hist.q = e.target.value; F.hist.limit = 150; renderHistory(); }, 150));
 $('fPurpose').addEventListener('change', e => { fillVols(e.target.value); const v = (CYLINDERS[e.target.value] || [])[0]; if (v) $('fMaxP').value = String(v.maxP); });
